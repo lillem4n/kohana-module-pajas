@@ -118,7 +118,15 @@ class Controller_Media extends Controller
 		if ($cache_ending != '')
 		{
 			// Resizing needed
-			exec('mkdir -p '.Kohana::$cache_dir.'/user_content/images'); // Make sure the cache dir exists
+
+			// Make sure the cache dir exists
+			$filename_parts = explode('/', $filename);
+			unset($filename_parts[count($filename_parts) - 1]);
+
+			$dir_to_create = Kohana::$cache_dir.'/user_content/images';
+			foreach ($filename_parts as $new_dir) $dir_to_create .= '/'.$new_dir;
+
+			exec('mkdir -p '.$dir_to_create);
 			exec('chmod a+w '.Kohana::$cache_dir.'/user_content/images'); // Make sure its writeable by all
 			$file = Kohana::$cache_dir.'/user_content/images/'.$filename.$cache_ending;
 			if ( ! file_exists($file))
@@ -133,10 +141,13 @@ class Controller_Media extends Controller
 				if (isset($_GET['height'])) $new_height = $_GET['height'];
 				else                        $new_height = $original_height;
 
-				if ($new_width / $new_height > $wh_ratio) {
+				if ($new_width / $new_height > $wh_ratio)
+				{
 					$calculated_width  = $new_height * $wh_ratio;
 					$calculated_height = $new_height;
-				} else {
+				}
+				else
+				{
 					$calculated_height = $new_width / $wh_ratio;
 					$calculated_width  = $new_width;
 				}
