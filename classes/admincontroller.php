@@ -41,6 +41,7 @@ abstract class Admincontroller extends Xsltcontroller
 
 		if ($this->request->controller() != 'login')
 		{
+
 			/**
 			 * Build the menu alternatives
 			 */
@@ -51,21 +52,20 @@ abstract class Admincontroller extends Xsltcontroller
 			// First add the default home-alternative
 			xml::to_XML(
 				array(array( // Just simulating the config reading, thats why it looks odd :p
-		      'name'        => 'Home',
-		      '@category'   => '',
-		      'description' => 'Admin home page with descriptions of the available admin pages',
-		  		'href'        => '',
-		  		'position'    => 0,
-		    )),
-		    $this->menuoptions_node,
-		    'menuoption'
-		  );
+					'name'        => 'Home',
+					'@category'   => '',
+					'description' => 'Admin home page with descriptions of the available admin pages',
+					'href'        => '',
+					'position'    => 0,
+				)),
+				$this->menuoptions_node,
+				'menuoption'
+			);
 
-		// Then we populate this container with options from the config files, and group them by 'menuoption'
-		  foreach (Kohana::$config->load('admin_menu_options') as $menu_option)
-		  {
-			if (in_array('admin', $user->get_role()) ||
-				in_array($menu_option['href'],$user->get_roles_uri()))
+			// Then we populate this container with options from the config files, and group them by 'menuoption'
+			foreach (Kohana::$config->load('admin_menu_options') as $menu_option)
+			{
+				if ($user->has_access_to('/admin/'.$menu_option['href']))
 				{
 					xml::to_XML(
 						array($menu_option),                 // Array to make XML from
@@ -76,10 +76,7 @@ abstract class Admincontroller extends Xsltcontroller
 		  }
 
 		}
-		if (!in_array($this->request->controller(), $user->get_roles_uri()))
-		{
-		throw new HTTP_Exception_403('403 Forbidden Controller: :controller', array(':controller' => $this->request->controller()));
-		}
+
 	}
 
 }

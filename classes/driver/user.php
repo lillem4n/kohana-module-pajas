@@ -119,6 +119,20 @@ abstract class Driver_User extends Model
 	abstract public function get_users($q, $start = FALSE, $limit = FALSE, $order_by = FALSE);
 
 	/**
+	 * Get restricted URIs
+	 *
+	 * @return arr
+	 */
+	abstract public function get_restricted_URIs();
+
+	/**
+	 * Get the user roles
+	 *
+	 * @return arr - array('role' => array(uri1, uri2 etc)
+	 */
+	abstract public function get_roles();
+
+	/**
 	 * Add a new field
 	 *
 	 * @param str $field_name

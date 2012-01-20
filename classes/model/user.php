@@ -215,29 +215,20 @@ class Model_User extends Model
 	}
 
 	/**
+	 * Get restricted URIs
+	 * @return arr
+	 */
+	public static function get_restricted_URIs()
+	{
+		return self::driver()->get_restricted_URIs();
+	}
+
+	/**
 	 * Get the users roles
-	 * @return str roles
 	 */
 	public static function get_roles()
 	{
 		return self::driver()->get_roles();
-	}
-
-	/**
-	 * Get the current users' roles
-	 * @return str roles
-	 */
-	public function get_roles_uri()
-	{
-		return self::driver()->get_roles_uri($this->get_role());
-	}
-
-	/**
-	 * Get the current users role.
-	 */
-	public function get_role()
-	{
-	 return $this->get_user_data('role');
 	}
 
 	/**
@@ -264,6 +255,55 @@ class Model_User extends Model
 	public static function get_users($q = FALSE, $start = FALSE, $limit = FALSE, $order_by = FALSE, $field_search = FALSE)
 	{
 		return self::driver()->get_users($q, $start, $limit, $order_by, $field_search);
+	}
+
+	public function has_access_to($URI)
+	{
+		$request_URI = substr($URI, 1);
+		$restricted  = FALSE;
+		foreach (self::get_restricted_URIs() as $restricted_URI)
+		{
+			$exact_match = (bool) (substr($restricted_URI, strlen($restricted_URI) - 1) != '*');
+
+			if (
+				($exact_match == TRUE && $restricted_URI == $request_URI) ||
+				(
+					$exact_match == FALSE &&
+					substr($request_URI, 0, strlen($restricted_URI) - 1) == substr($restricted_URI, 0, strlen($restricted_URI) - 1)
+				)
+			) $restricted = TRUE;
+		}
+
+		if     ( ! $restricted)                      return TRUE;
+		elseif ($restricted && ! $this->logged_in()) return FALSE;
+		elseif ($restricted && $this->logged_in())
+		{
+			$roles = self::get_roles();
+			foreach ($this->get_user_data('role') as $role)
+			{
+				if (isset($roles[$role]))
+				{
+					foreach ($roles[$role] as $got_access_to)
+					{
+						$exact_match = (bool) (substr($got_access_to, strlen($got_access_to) - 1) != '*');
+
+						if (
+							($exact_match == TRUE && $request_URI == $got_access_to) ||
+							(
+								$exact_match == FALSE &&
+								substr($request_URI, 0, strlen($got_access_to) - 1) == substr($got_access_to, 0, strlen($got_access_to) - 1)
+							)
+						)
+						{
+							return TRUE;
+						}
+					}
+				}
+			}
+
+			// If no access have been found by now, user has no access
+			return FALSE;
+		}
 	}
 
 	/**

@@ -103,29 +103,20 @@ class Driver_User_Mysql extends Driver_User
 		return $this->pdo->query('SELECT username FROM user_users WHERE id = '.$this->pdo->quote($user_id))->fetchColumn();
 	}
 
-	/**
-	 * Get the user roles
-	 * @return str roles
-	 */
-	public function get_roles()
+	public function get_restricted_URIs()
 	{
-		return $this->pdo->query('SELECT role FROM user_roles_rights')->fetchAll(PDO::FETCH_COLUMN);
+		return $this->pdo->query('SELECT uri FROM user_roles_rights GROUP BY uri ORDER BY uri')->fetchAll(PDO::FETCH_COLUMN);
 	}
 
-	/**
-	 * Get the current users' roles
-	 * @return arr roles
-	 */
-	public function get_roles_uri($roles)
+	public function get_roles()
 	{
-		foreach($roles as $role)
+		$roles = array();
+		foreach ($this->pdo->query('SELECT * FROM user_roles_rights')->fetchAll(PDO::FETCH_ASSOC) as $row)
 		{
-			$roles_string = '\''.$role.'\',';
+			$roles[$row['role']][] = $row['uri'];
 		}
-		$roles = substr($roles_string, 0, -1);
-		$sql = 'SELECT uri FROM user_roles_rights WHERE role in('.$roles.') GROUP BY uri';
-//		return $sql;
-	return $this->pdo->query($sql)->fetchAll(PDO::FETCH_COLUMN);
+
+		return $roles;
 	}
 
 	public function get_users($q = FALSE, $start = 0, $limit = 100, $order_by = FALSE, $field_search = FALSE)
@@ -238,7 +229,7 @@ class Driver_User_Mysql extends Driver_User
 
 	public function new_field($field_name)
 	{
-		if (User::field_name_available($field_name))
+		if (User::field_name_available($field_name) && $field_name != 'id')
 		{
 			$this->pdo->exec('INSERT INTO user_data_fields (name) VALUES('.$this->pdo->quote($field_name).')');
 			return $this->pdo->lastInsertId();
@@ -298,7 +289,7 @@ class Driver_User_Mysql extends Driver_User
 			$fields = array();
 			foreach ($user_data as $field => $content)
 			{
-				$fields[] = $this->pdo->quote($field);
+				if ($field != 'id') $fields[] = $this->pdo->quote($field);
 			}
 
 			if (count($fields))
