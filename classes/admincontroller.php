@@ -76,7 +76,6 @@ abstract class Admincontroller extends Xsltcontroller
 		  }
 
 		}
-
 	}
 
 }

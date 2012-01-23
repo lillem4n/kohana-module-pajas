@@ -10,6 +10,12 @@ abstract class Xsltcontroller extends Controller
 {
 
 	/**
+	 * If set to true, won't show 403.'
+	 *
+	 */
+	public $ignore_acl = FALSE;
+
+	/**
 	 * If set to TRUE, render() will automaticly be ran
 	 * when the controller is done.
 	 */
@@ -53,11 +59,6 @@ abstract class Xsltcontroller extends Controller
 	public function __construct(Request $request, Response $response)
 	{
 		parent::__construct($request, $response);
-
-		// If page is restricted, check if visitor is logged in, and got access
-		// Check if the page is restricted
-		$user = new User;
-		if ( ! $user->has_access_to($_SERVER['REQUEST_URI'])) throw new HTTP_Exception_403('403 Forbidden');
 
 		// Set transformation
 		if (isset($_GET['transform']))
@@ -111,6 +112,13 @@ abstract class Xsltcontroller extends Controller
 	 */
 	public function render()
 	{
+
+		// If page is restricted, check if visitor is logged in, and got access
+		// Check if the page is restricted
+		$user = new User;
+		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE)
+				throw new HTTP_Exception_403('403 Forbidden');
+
 		if ($this->transform === TRUE || $this->transform === FALSE || $this->transform == 'auto')
 		{
 			$this->dom->insertBefore(

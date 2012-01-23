@@ -4,6 +4,9 @@ class Controller_Admin_Login extends Admincontroller {
 
 	public function action_index()
 	{
+
+		$this->ignore_acl = TRUE; // Ignore user role check.
+
 		Session::instance();
 		$this->xslt_stylesheet = 'admin/login';
 
