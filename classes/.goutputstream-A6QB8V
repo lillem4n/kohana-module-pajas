@@ -15,11 +15,6 @@ abstract class Xsltcontroller extends Controller
 	 */
 	public $ignore_acl = FALSE;
 
-	/*
-	 * If set to true
-	 * The Controller is a part of the administration kit'
-	 */
-	 public $admin_acl = FALSE;
 	/**
 	 * If set to TRUE, render() will automaticly be ran
 	 * when the controller is done.
@@ -122,10 +117,8 @@ abstract class Xsltcontroller extends Controller
 		// Check if the page is restricted
 		$user = new User;
 
-		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE && $this->admin_acl == FALSE)
+		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE )
 				throw new HTTP_Exception_403('403 Forbidden');
-		elseif ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE && $this->admin_acl == TRUE )
-				$this->redirect('admin/login');
 
 		if ($this->transform === TRUE || $this->transform === FALSE || $this->transform == 'auto')
 		{
