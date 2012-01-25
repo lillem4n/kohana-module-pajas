@@ -5,8 +5,65 @@ class Driver_Content_Mysql extends Driver_Content
 
 	protected function check_db_structure()
 	{
-		$columns = $this->pdo->query('SHOW TABLES like \'content%\';')->fetchAll(PDO::FETCH_COLUMN);
-		return count($columns) >= 6;
+		$result = $this->pdo->query('DESCRIBE `content`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'id',         'Type' => 'bigint(20) unsigned', 'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => 'auto_increment'),
+		                   array('Field' => 'content',    'Type' => 'text',                'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		$result = $this->pdo->query('DESCRIBE `content_images`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'name',       'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		$result = $this->pdo->query('DESCRIBE `content_images`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'name',       'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		$result = $this->pdo->query('DESCRIBE `content_images_tags`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'image_name', 'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'MUL', 'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field' => 'tag_id',     'Type' => 'int(11)',             'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field' => 'tag_value',  'Type' => 'varchar(255)',        'Null' => 'YES', 'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		$result = $this->pdo->query('DESCRIBE `content_pages`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'id',         'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => 'auto_increment'),
+		                   array('Field' => 'name',       'Type' => 'varchar(100)',        'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field' => 'URI',        'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'UNI', 'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		$result = $this->pdo->query('DESCRIBE `content_pages_tags`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'page_id',    'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => 'MUL', 'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field' => 'tag_id',     'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field'=>'template_field_id','Type'=>'int(10) unsigned',  'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		$result = $this->pdo->query('DESCRIBE `content_tags`;')->fetchAll(PDO::FETCH_ASSOC);
+		if (
+		     $result != array(
+		                   array('Field' => 'content_id', 'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => 'MUL', 'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field' => 'tag_id',     'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                   array('Field' => 'tag_value',  'Type' => 'varchar(255)',        'Null' => 'YES', 'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
+		                 )
+		) return FALSE;
+
+		return TRUE;
 	}
 
 	protected function create_db_structure() {
@@ -45,6 +102,8 @@ class Driver_Content_Mysql extends Driver_Content
 			`tag_value` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 			KEY `content_id` (`content_id`,`tag_id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;');
+
+		return $this->check_db_structure();
 	}
 
 	public function get_content($content_id)
