@@ -26,9 +26,7 @@ class Controller_Media extends Controller
 		}
 		else
 		{
-// This needs to be altered to function in Kohana 3.1 and then to 3.2 :)
-			$this->response->status = 404;
-			echo Request::factory('404')->execute()->response;
+			throw new Http_Exception_404('File not found!');
 		}
 	}
 
@@ -126,11 +124,13 @@ class Controller_Media extends Controller
 			$dir_to_create = Kohana::$cache_dir.'/user_content/images';
 			foreach ($filename_parts as $new_dir) $dir_to_create .= '/'.$new_dir;
 
-			exec('mkdir -p '.$dir_to_create);
-			exec('chmod a+w '.Kohana::$cache_dir.'/user_content/images'); // Make sure its writeable by all
 			$file = Kohana::$cache_dir.'/user_content/images/'.$filename.$cache_ending;
 			if ( ! file_exists($file))
 			{
+
+				exec('mkdir -p '.$dir_to_create);
+				exec('chmod -R a+w '.Kohana::$cache_dir.'/user_content/images'); // Make sure its writeable by all
+
 				// Create a new cached resized file
 				list($original_width, $original_height) = getimagesize(Kohana::$config->load('user_content.dir').'/images/'.$filename);
 				$wh_ratio = $original_width / $original_height;
@@ -152,10 +152,30 @@ class Controller_Media extends Controller
 					$calculated_width  = $new_width;
 				}
 
-				$src = imagecreatefromjpeg(Kohana::$config->load('user_content.dir').'/images/'.$filename);
-				$dst = imagecreatetruecolor($calculated_width, $calculated_height);
-				imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
-				imagejpeg($dst, $file);
+				if ($file_ending == 'jpg' || $file_ending == 'jpeg')
+				{
+					$src = imagecreatefromjpeg(Kohana::$config->load('user_content.dir').'/images/'.$filename);
+					$dst = imagecreatetruecolor($calculated_width, $calculated_height);
+					imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
+					imagejpeg($dst, $file);
+				}
+				elseif ($file_ending == 'png')
+				{
+					$src = imagecreatefrompng(Kohana::$config->load('user_content.dir').'/images/'.$filename);
+					$dst = imagecreatetruecolor($calculated_width, $calculated_height);
+					imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
+					imagepng($dst, $file);
+				}
+/* Somethings fucked up with the colors in GIFs...
+				elseif ($file_ending == 'gif')
+				{
+					$src = imagecreatefromgif(Kohana::$config->load('user_content.dir').'/images/'.$filename);
+					$dst = imagecreatetruecolor($calculated_width, $calculated_height);
+					imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
+					imagegif($dst, $file);
+				}
+*/
+
 			}
 		}
 		else
