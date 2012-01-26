@@ -141,15 +141,28 @@ class Controller_Media extends Controller
 				if (isset($_GET['height'])) $new_height = $_GET['height'];
 				else                        $new_height = $original_height;
 
-				if ($new_width / $new_height > $wh_ratio)
+				if ( ! isset($_GET['width']))
 				{
 					$calculated_width  = $new_height * $wh_ratio;
 					$calculated_height = $new_height;
 				}
-				else
+				elseif ( ! isset($_GET['height']))
 				{
 					$calculated_height = $new_width / $wh_ratio;
 					$calculated_width  = $new_width;
+				}
+				else
+				{
+					if ($new_width / $new_height > $wh_ratio)
+					{
+						$calculated_width  = $new_height * $wh_ratio;
+						$calculated_height = $new_height;
+					}
+					else
+					{
+						$calculated_height = $new_width / $wh_ratio;
+						$calculated_width  = $new_width;
+					}
 				}
 
 				if ($file_ending == 'jpg' || $file_ending == 'jpeg')
