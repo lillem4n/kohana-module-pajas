@@ -184,7 +184,7 @@ class Driver_Content_Mysql extends Driver_Content
 		return $contents;
 	}
 
-	public  function get_contents_by_tag_value($tag_value)
+	public function get_contents_by_tag_value($tag_value)
 	{
 		$sql = '
 			SELECT

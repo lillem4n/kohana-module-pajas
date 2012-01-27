@@ -153,10 +153,11 @@ class Content_Content extends Model
 		return self::driver()->get_contents_by_tag_id($tag_id);
 	}
 
-	public static  function get_contents_by_tag_value($tag_value)
+	public static function get_contents_by_tag_value($tag_value)
 	{
 		return self::driver()->get_contents_by_tag_value($tag_value);
 	}
+
 	public function get_tags()
 	{
 		return $this->tags;
