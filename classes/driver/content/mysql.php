@@ -184,6 +184,48 @@ class Driver_Content_Mysql extends Driver_Content
 		return $contents;
 	}
 
+	public  function get_contents_by_tag_value($tag_value)
+	{
+		$sql = '
+			SELECT
+				content.id,
+				content.content,
+				(
+					SELECT name FROM tags WHERE tags.id = content_tags.tag_id
+				) AS tag,
+				content_tags.tag_value
+			FROM
+				content
+				LEFT JOIN content_tags ON content_tags.content_id = content.id
+			WHERE content.id IN
+				(
+					SELECT content_id
+					FROM content_tags
+					WHERE tag_value = '.$this->pdo->quote($tag_value).'
+				);';
+
+		$contents = array();
+		foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)
+		{
+			if ( ! isset($contents[$row['id']]))
+			{
+				$contents[$row['id']] = array(
+					'id'      => $row['id'],
+					'content' => $row['content'],
+					'tags'    => array(),
+				);
+			}
+
+			if ( ! isset($contents[$row['id']]['tags'][$row['tag']]))
+			{
+				$contents[$row['id']]['tags'][$row['tag']] = array();
+			}
+			$contents[$row['id']]['tags'][$row['tag']][] = $row['tag_value'];
+		}
+
+		return $contents;
+	}
+
 	public function get_images($names = NULL, $tags = array(), $names_only = FALSE)
 	{
 		if (is_array($names) && count($names) == 0) return array();

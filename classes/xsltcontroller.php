@@ -20,6 +20,7 @@ abstract class Xsltcontroller extends Controller
 	 * The Controller is a part of the administration kit'
 	 */
 	 public $admin_acl = FALSE;
+
 	/**
 	 * If set to TRUE, render() will automaticly be ran
 	 * when the controller is done.
