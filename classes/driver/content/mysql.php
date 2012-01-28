@@ -5,65 +5,81 @@ class Driver_Content_Mysql extends Driver_Content
 
 	protected function check_db_structure()
 	{
-		$result = $this->pdo->query('DESCRIBE `content`;')->fetchAll(PDO::FETCH_ASSOC);
+
+		// Make PDO silen during these checks
+		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+
+		$db_check_pass = TRUE;
+
+		$result = $this->pdo->query('DESCRIBE `content`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'id',         'Type' => 'bigint(20) unsigned', 'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => 'auto_increment'),
 		                   array('Field' => 'content',    'Type' => 'text',                'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		$result = $this->pdo->query('DESCRIBE `content_images`;')->fetchAll(PDO::FETCH_ASSOC);
+		$result = $this->pdo->query('DESCRIBE `content_images`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'name',       'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		$result = $this->pdo->query('DESCRIBE `content_images`;')->fetchAll(PDO::FETCH_ASSOC);
+		$result = $this->pdo->query('DESCRIBE `content_images`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'name',       'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		$result = $this->pdo->query('DESCRIBE `content_images_tags`;')->fetchAll(PDO::FETCH_ASSOC);
+		$result = $this->pdo->query('DESCRIBE `content_images_tags`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'image_name', 'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'MUL', 'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field' => 'tag_id',     'Type' => 'int(11)',             'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field' => 'tag_value',  'Type' => 'varchar(255)',        'Null' => 'YES', 'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		$result = $this->pdo->query('DESCRIBE `content_pages`;')->fetchAll(PDO::FETCH_ASSOC);
+		$result = $this->pdo->query('DESCRIBE `content_pages`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'id',         'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => 'PRI', 'Default' => NULL, 'Extra' => 'auto_increment'),
 		                   array('Field' => 'name',       'Type' => 'varchar(100)',        'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field' => 'URI',        'Type' => 'varchar(255)',        'Null' => 'NO',  'Key' => 'UNI', 'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		$result = $this->pdo->query('DESCRIBE `content_pages_tags`;')->fetchAll(PDO::FETCH_ASSOC);
+		$result = $this->pdo->query('DESCRIBE `content_pages_tags`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'page_id',    'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => 'MUL', 'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field' => 'tag_id',     'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field'=>'template_field_id','Type'=>'int(10) unsigned',  'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		$result = $this->pdo->query('DESCRIBE `content_tags`;')->fetchAll(PDO::FETCH_ASSOC);
+		$result = $this->pdo->query('DESCRIBE `content_tags`;');
+		if ($result) $result = $result->fetchAll(PDO::FETCH_ASSOC);
 		if (
 		     $result != array(
 		                   array('Field' => 'content_id', 'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => 'MUL', 'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field' => 'tag_id',     'Type' => 'int(10) unsigned',    'Null' => 'NO',  'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                   array('Field' => 'tag_value',  'Type' => 'varchar(255)',        'Null' => 'YES', 'Key' => '',    'Default' => NULL, 'Extra' => ''              ),
 		                 )
-		) return FALSE;
+		) $db_check_pass = FALSE;
 
-		return TRUE;
+		// Turn on error reportning again
+		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+		return $db_check_pass;
 	}
 
 	protected function create_db_structure() {
