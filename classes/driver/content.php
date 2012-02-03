@@ -3,7 +3,7 @@
 abstract class Driver_Content extends Model
 {
 
-	public function __construct()
+	public function __construct($check = TRUE)
 	{
 		parent::__construct();
 		if (Kohana::$environment == Kohana::DEVELOPMENT)
@@ -15,51 +15,64 @@ abstract class Driver_Content extends Model
 			}
 		}
 
-		// Add image files that does not exist in database
-		$tracked_images = $this->get_images(NULL, array(), TRUE);
-		$cwd            = getcwd();
-		chdir(Kohana::$config->load('user_content.dir').'/images');
-		$actual_images  = glob('*.jpg');
-		chdir($cwd);
-		foreach (array_diff($actual_images, $tracked_images) as $non_tracked_image)
+		if ($check)
 		{
-
-			$pathinfo = pathinfo($non_tracked_image);
-			if ($pathinfo['filename'] != URL::title($pathinfo['filename']))
+			// Add image files that does not exist in database
+			$tracked_images = $this->get_images(NULL, array(), TRUE);
+			$cwd            = getcwd();
+			chdir(Kohana::$config->load('user_content.dir').'/images');
+			$actual_images  = glob('{*.jpg,*.png}', GLOB_BRACE);
+			chdir($cwd);
+			foreach (array_diff($actual_images, $tracked_images) as $non_tracked_image)
 			{
-				// We need to rename the image so it fits the URL
 
-				$new_filename = URL::title($pathinfo['filename']);
-				while ( ! Content_Image::image_name_available($new_filename))
+				$pathinfo = pathinfo($non_tracked_image);
+				if ($pathinfo['filename'] != URL::title($pathinfo['filename']))
 				{
-					$new_filename = URL::title($pathinfo['filename']).'_'.$counter.'.jpg';
-					$counter++;
+					// We need to rename the image so it fits the URL
+					$new_filename = URL::title($pathinfo['filename']).'.'.strtolower($pathinfo['extension']);
+					$counter      = 1;
+
+					while ( ! Content_Image::image_name_available($new_filename))
+					{
+						$new_filename = URL::title($pathinfo['filename']).'_'.$counter.'.'.strtolower($pathinfo['extension']);
+						$counter++;
+					}
+
+					if (@rename(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image, Kohana::$config->load('user_content.dir').'/images/'.$new_filename))
+					{
+						$non_tracked_image = $new_filename;
+						$pathinfo          = pathinfo($non_tracked_image);
+					}
 				}
 
-				copy(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image, Kohana::$config->load('user_content.dir').'/images/'.$new_filename.'.jpg');
-				@unlink(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image);
-				$non_tracked_image = $new_filename.'.jpg';
-			}
-
-			if (@$gd_img_object = ImageCreateFromJpeg(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image))
-			{
-				$gd_img_object = ImageCreateFromJpeg(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image);
-				$width         = imagesx($gd_img_object);
-				$height        = imagesy($gd_img_object);
-				$this->new_image($non_tracked_image, array('width'=>$width,'height'=>$height));
-			}
-			else
-			{
-				// This jpg file is not a valid jpg image
-				$path_parts   = pathinfo($non_tracked_image);
-				$new_filename = $path_parts['filename'].'.broken_jpg';
-				while (file_exists(Kohana::$config->load('user_content.dir').'/images/'.$new_filename))
+				if ($pathinfo['filename'] == URL::title($pathinfo['filename']))
 				{
-					if ( ! isset($counter)) $counter = 1;
-					$new_filename = $path_parts['filename'].'_'.$counter.'.broken_jpg';
-					$counter++;
+					if ($pathinfo['extension'] == 'jpg')
+						@$gd_img_object = ImageCreateFromJpeg(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image);
+					elseif ($pathinfo['extension'] == 'png')
+						@$gd_img_object = ImageCreateFromPng(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image);
+
+					if ($gd_img_object)
+					{
+						$width         = imagesx($gd_img_object);
+						$height        = imagesy($gd_img_object);
+						$this->new_image($non_tracked_image, array('width'=>$width,'height'=>$height));
+					}
+					else
+					{
+						// Not valid image
+						$new_filename = $non_tracked_image.'_broken';
+						$counter      = 1;
+						while (file_exists(Kohana::$config->load('user_content.dir').'/images/'.$new_filename))
+						{
+							$new_filename = $non_tracked_image.'_broken_'.$counter;
+							$counter++;
+						}
+						@rename(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image, Kohana::$config->load('user_content.dir').'/images/'.$new_filename);
+					}
 				}
-				@rename(Kohana::$config->load('user_content.dir').'/images/'.$non_tracked_image, Kohana::$config->load('user_content.dir').'/images/'.$new_filename);
+
 			}
 		}
 	}

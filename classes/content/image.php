@@ -138,17 +138,10 @@ class Content_Image extends Model
 	 */
 	public static function image_name_available($name)
 	{
-		$name_pi = pathinfo($name);
+		$driver_name = 'Driver_Content_'.ucfirst(Kohana::$config->load('content.driver'));
+		$tmp_driver  = new $driver_name(FALSE);
 
-		foreach (self::driver()->get_images() as $image_name => $image_data)
-		{
-			$image_name_pi = pathinfo($image_name);
-
-			if ($image_name_pi['filename'] == $name_pi['filename']) return FALSE;
-		}
-
-		// No matches found, image name is available
-		return TRUE;
+		return $tmp_driver->image_name_available($name);
 	}
 
 	/**

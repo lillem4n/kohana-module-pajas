@@ -40,6 +40,7 @@ abstract class Driver_User extends Model
 	protected function insert_initial_data() {
 		$this->new_field('role');
 		User::new_user('admin', 'admin', array('role' => 'admin'));
+		$this->new_role_uri('admin', 'admin*');
 	}
 
 	/**
@@ -139,6 +140,18 @@ abstract class Driver_User extends Model
 	 * @return int - New field id
 	 */
 	abstract public function new_field($field_name);
+
+	/**
+	 * Add new role URI
+	 * All URIs that matches these rules will be restricted
+	 * and only accessible by logged in users that belongs to
+	 * a matching role
+	 *
+	 * @param str $role - the role that should have access to this URI
+	 * @param str $uri  - the URI that should be given access to
+	 * @return boolean
+	 */
+	abstract public function new_role_uri($role, $uri);
 
 	/**
 	 * Add a new user

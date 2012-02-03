@@ -4,6 +4,7 @@ class Controller_Admin_Images extends Admincontroller {
 
 	public function before()
 	{
+
 		// Set the name of the template to use
 		$this->xslt_stylesheet = 'admin/images';
 		xml::to_XML(array('admin_page' => 'Images'), $this->xml_meta);
@@ -18,7 +19,7 @@ class Controller_Admin_Images extends Admincontroller {
 			// Create the image node and set the image data to it
 			$image_node = $this->xml_content_images->appendChild($this->dom->createElement('image'));
 			$image_node->setAttribute('name', $image_name);
-			$image_node->appendChild($this->dom->createElement('name', substr($image_name, 0, strlen($image_name) - 4)));
+			$image_node->appendChild($this->dom->createElement('name', $image_name));
 			$image_node->appendChild($this->dom->createElement('URL', 'user_content/images/'.$image_name));
 
 			foreach ($image_details as $detail_name => $detail_values)
@@ -40,24 +41,29 @@ class Controller_Admin_Images extends Admincontroller {
 		if (count($_FILES))
 		{
 			$pathinfo = pathinfo($_FILES['file']['name']);
-			if (strtolower($pathinfo['extension']) == 'jpg')
+			if (strtolower($pathinfo['extension']) == 'jpg' || strtolower($pathinfo['extension']) == 'png')
 			{
-				$filename     = URL::title($pathinfo['filename']).'.jpg';
+				$filename     = URL::title($pathinfo['filename']).'.'.strtolower($pathinfo['extension']);
 				$new_filename = $filename;
 				$counter      = 1;
 				while ( ! Content_Image::image_name_available($new_filename))
 				{
-					$new_filename = substr($filename, 0, strlen($filename) - 4).'_'.$counter.'.jpg';
+					$new_filename = substr($filename, 0, strlen($filename) - 4).'_'.$counter.'.'.strtolower($pathinfo['extension']);
 					$counter++;
 				}
 				if (move_uploaded_file($_FILES['file']['tmp_name'], APPPATH.'/user_content/images/'.$new_filename))
 				{
 
-					$gd_img_object = ImageCreateFromJpeg(Kohana::$config->load('user_content.dir').'/images/'.$new_filename);
-					$details       = array(
-					                   'width'  => array(imagesx($gd_img_object)),
-					                   'height' => array(imagesy($gd_img_object))
-					                 );
+					if (strtolower($pathinfo['extension']) == 'jpg')
+						$gd_img_object = ImageCreateFromJpeg(Kohana::$config->load('user_content.dir').'/images/'.$new_filename);
+					elseif (strtolower($pathinfo['extension']) == 'png')
+						$gd_img_object = ImageCreateFromPng(Kohana::$config->load('user_content.dir').'/images/'.$new_filename);
+
+					$details = array(
+					             'width'  => array(imagesx($gd_img_object)),
+					             'height' => array(imagesy($gd_img_object))
+					           );
+
 					foreach ($_POST['tag'] as $nr => $tag_name)
 					{
 						if ($tag_name != '')
@@ -66,6 +72,7 @@ class Controller_Admin_Images extends Admincontroller {
 							$details[$tag_name][] = $_POST['tag_value'][$nr];
 						}
 					}
+
 					Content_Image::new_image($new_filename, $details);
 
 					$this->add_message('Image "'.$new_filename.'" added');
@@ -74,7 +81,7 @@ class Controller_Admin_Images extends Admincontroller {
 			}
 			else
 			{
-				$this->add_error('Image must be of jpeg type (file extension .jpg)');
+				$this->add_error('Image must be jpg or png');
 			}
 		}
 	}
@@ -85,8 +92,6 @@ class Controller_Admin_Images extends Admincontroller {
 
 		if ($content_image = new Content_Image($name))
 		{
-			$short_name = substr($name, 0, strlen($name) - 4);
-
 			$this->xml_content_image = $this->xml_content->appendChild($this->dom->createElement('image'));
 			$this->xml_content_image->setAttribute('name', $name);
 
@@ -95,13 +100,17 @@ class Controller_Admin_Images extends Admincontroller {
 
 			if (count($_POST))
 			{
-				$_POST['name'] = URL::title($_POST['name'], '-', TRUE);
+				list($filename, $extension) = explode('.', $_POST['name']);
+				$extension = strtolower($extension);
+
+				$_POST['name'] = URL::title($filename, '-', TRUE).'.'.$extension;
 				$post = new Validation($_POST);
 				$post->filter('trim');
 				$post->rule('Valid::not_empty', 'name');
 
 				$form_data = $post->as_array();
-				if ($form_data['name'] != $short_name)
+				$old_name  = $content_image->get_name();
+				if ($form_data['name'] != $old_name)
 				{
 					$post->rule('Content_Image::image_name_available', 'name');
 				}
@@ -117,9 +126,9 @@ class Controller_Admin_Images extends Admincontroller {
 						if ( ! isset($new_image_data[$tag_name])) $new_image_data[$tag_name] = array();
 						$new_image_data[$tag_name][] = $form_data['tag_value'][$nr];
 					}
-					$content_image->set_data(array_merge($new_image_data, array('name' => $form_data['name'].'.jpg')));
+					$content_image->set_data(array_merge($new_image_data, array('name' => $form_data['name'])));
 
-					if ($form_data['name'] != $short_name)
+					if ($form_data['name'] != $old_name)
 					{
 						// If the image name have changed, we need to change the URL also
 
@@ -127,12 +136,12 @@ class Controller_Admin_Images extends Admincontroller {
 						$_SESSION['content']['image']['message'] = 'Image data saved';
 
 						// Redirect to the new name
-						$this->redirect('/admin/images/edit_image/'.$form_data['name'].'.jpg');
+						$this->redirect('/admin/images/edit_image/'.$form_data['name']);
 					}
 
 					$this->add_message('Image data saved');
 
-					$this->set_formdata(array('name'=>$short_name));
+					$this->set_formdata(array('name'=>$form_data['name']));
 
 					$image_data = $content_image->get_data();
 					foreach ($image_data as $tag_name => $tag_values)
@@ -168,7 +177,7 @@ class Controller_Admin_Images extends Admincontroller {
 			}
 			else
 			{
-				$this->set_formdata(array('name'=>$short_name));
+				$this->set_formdata(array('name'=>$name));
 
 				$image_data = $content_image->get_data();
 				foreach ($image_data as $tag_name => $tag_values)

@@ -237,6 +237,11 @@ class Driver_User_Mysql extends Driver_User
 		else return FALSE;
 	}
 
+	public function new_role_uri($role, $uri)
+	{
+		return $this->pdo->exec('INSERT INTO user_roles_rights (role, uri) VALUES('.$this->pdo->quote($role).','.$this->pdo->quote($uri).')');
+	}
+
 	public function new_user($username, $password, $user_data = array())
 	{
 		$this->pdo->exec('INSERT INTO user_users (username, password) VALUES('.$this->pdo->quote($username).','.$this->pdo->quote($password).')');

@@ -5,7 +5,7 @@
 		method="html"
 		encoding="utf-8"
 		omit-xml-declaration="yes"
-		doctype-public="HTML"
+		doctype-system="about:legacy-compat"
 	/>
 	<xsl:include href="inc.elements.xsl" />
 
