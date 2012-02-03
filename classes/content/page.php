@@ -167,7 +167,7 @@ class Content_Page extends Model
 	 */
 	public static function new_page($name, $URI = FALSE, $tags = FALSE)
 	{
-		if ($URI == FALSE) $URI = uri::title($name, '-', TRUE);
+		if ($URI == FALSE) $URI = url::title($name, '-', TRUE);
 
 		return self::driver()->new_page($name, $URI, $tags);
 	}

@@ -24,6 +24,12 @@
 				<link type="text/css" href="{/root/meta/base}css/admin/style.css" rel="stylesheet" media="all" />
 				<link href='http://fonts.googleapis.com/css?family=Cuprum&amp;subset=latin' rel='stylesheet' type='text/css' />
 				<base href="http://{root/meta/domain}{/root/meta/base}admin/" />
+
+				<!-- jQuery -->
+				<link type="text/css" href="{/root/meta/base}css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" media="all" />
+				<script type="text/javascript" src="/js/jquery-1.7.1.min.js" />
+				<script type="text/javascript" src="/js/jquery-ui-1.8.17.custom.min.js" />
+
 				<title><xsl:value-of select="$title" /></title>
 				<!--[if lt IE 7]>
 					<style media="screen" type="text/css">
