@@ -24,6 +24,7 @@
 			<head>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 				<link type="text/css" href="{/root/meta/base}css/admin/style.css" rel="stylesheet" media="all" />
+
 				<!-- Custom CSS files -->
 				<xsl:if test="$css_files">
 					<xsl:for-each select="$css_files/file">
