@@ -17,11 +17,27 @@
 	<xsl:template name="template">
 		<xsl:param name="title" />
 		<xsl:param name="h1" />
+		<xsl:param name="js_files" />
+		<xsl:param name="css_files" />
 
 		<html>
 			<head>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 				<link type="text/css" href="{/root/meta/base}css/admin/style.css" rel="stylesheet" media="all" />
+				<!-- Custom CSS files -->
+				<xsl:if test="$css_files">
+					<xsl:for-each select="$css_files/file">
+						<link rel="stylesheet" type="text/css" href="{.}" />
+					</xsl:for-each>
+				</xsl:if>
+
+				<!-- Custom JS files -->
+				<xsl:if test="$js_files">
+					<xsl:for-each select="$js_files/file">
+						<script type="text/javascript" src="{.}" />
+					</xsl:for-each>
+				</xsl:if>
+
 				<link href='http://fonts.googleapis.com/css?family=Cuprum&amp;subset=latin' rel='stylesheet' type='text/css' />
 				<base href="http://{root/meta/domain}{/root/meta/base}admin/" />
 				<title><xsl:value-of select="$title" /></title>
