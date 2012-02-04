@@ -158,6 +158,64 @@ class Driver_Content_Mysql extends Driver_Content
 		return $contents;
 	}
 
+	public function get_contents_by_tags($tags)
+	{
+		$sql = '
+			SELECT
+				content.id,
+				content.content,
+				(
+					SELECT name FROM tags WHERE tags.id = content_tags.tag_id
+				) AS tag,
+				content_tags.tag_value
+			FROM
+				content
+				LEFT JOIN content_tags ON content_tags.content_id = content.id
+			WHERE content.id IN
+				(
+					SELECT content_id
+					FROM content_tags
+					WHERE';
+
+		foreach ($tags as $tag_name => $tag_values)
+		{
+			if ( ! is_array($tag_values)) $tag_values = array($tag_values);
+
+			$sql .= ' tag_id = '.Tags::get_id_by_name($tag_name).' AND (';
+
+			foreach ($tag_values as $tag_value) $sql .= 'tag_value = '.$this->pdo->quote($tag_value).' OR';
+
+			$sql = substr($sql, 0, strlen($sql) - 3);
+
+			$sql .= ') OR';
+		}
+
+		$sql = substr($sql, 0, strlen($sql) - 3);
+
+		$sql .= ')';
+
+		$contents = array();
+		foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)
+		{
+			if ( ! isset($contents[$row['id']]))
+			{
+				$contents[$row['id']] = array(
+					'id'      => $row['id'],
+					'content' => $row['content'],
+					'tags'    => array(),
+				);
+			}
+
+			if ( ! isset($contents[$row['id']]['tags'][$row['tag']]))
+			{
+				$contents[$row['id']]['tags'][$row['tag']] = array();
+			}
+			$contents[$row['id']]['tags'][$row['tag']][] = $row['tag_value'];
+		}
+
+		return $contents;
+	}
+
 	public function get_contents_by_tag_id($tag_id)
 	{
 		$sql = '

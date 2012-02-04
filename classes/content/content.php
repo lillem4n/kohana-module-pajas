@@ -123,6 +123,11 @@ class Content_Content extends Model
 		return self::driver()->get_contents();
 	}
 
+	public static function get_contents_by_tags($tags)
+	{
+		return self::driver()->get_contents_by_tags($tags);
+	}
+
 	/**
 	 * Get contents by tag id
 	 *

@@ -160,6 +160,33 @@ abstract class Driver_Content extends Model
 	abstract public function get_contents();
 
 	/**
+	 * Get contents by tags
+	 *
+	 * @param $tags - tag name as key, tag values as values
+	 * @return array of content ids - ex array(
+	 *                      array(
+	 *                        id      => 1,
+	 *                        content => Lots of content
+	 *                        tags    => array(
+	 *                          date     => array('2011-05-30'),
+	 *                          blogpost => array(NULL)
+	 *                          location => array('stockholm', 'uppsala')
+	 *                        )
+	 *                      ),
+	 *                      array(
+	 *                        id      => 2,
+	 *                        content => Lots of content
+	 *                        tags    => array(
+	 *                          date     => array('2011-05-30'),
+	 *                          blogpost => array(NULL)
+	 *                          location => array('stockholm', 'uppsala')
+	 *                        )
+	 *                      ),
+	 *                    )
+	 */
+	abstract public function get_contents_by_tags($tags);
+
+	/**
 	 * Get contents by tag id
 	 *
 	 * @param int $tag_id
