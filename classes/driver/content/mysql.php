@@ -171,28 +171,27 @@ class Driver_Content_Mysql extends Driver_Content
 			FROM
 				content
 				LEFT JOIN content_tags ON content_tags.content_id = content.id
-			WHERE content.id IN
-				(
-					SELECT content_id
-					FROM content_tags
-					WHERE';
+			WHERE';
 
 		foreach ($tags as $tag_name => $tag_values)
 		{
 			if ( ! is_array($tag_values)) $tag_values = array($tag_values);
 
-			$sql .= ' tag_id = '.Tags::get_id_by_name($tag_name).' AND (';
+			foreach ($tag_values as $tag_value)
+			{
+				$sql .= ' content.id IN (
+										SELECT content_id
+										FROM content_tags
+										WHERE tag_id = '.Tags::get_id_by_name($tag_name);
 
-			foreach ($tag_values as $tag_value) $sql .= 'tag_value = '.$this->pdo->quote($tag_value).' OR';
+				if ($tag_value !== NULL) $sql .= ' AND tag_value = '.$this->pdo->quote($tag_value);
 
-			$sql = substr($sql, 0, strlen($sql) - 3);
+				$sql .= ') AND';
+			}
 
-			$sql .= ') OR';
 		}
 
-		$sql = substr($sql, 0, strlen($sql) - 3);
-
-		$sql .= ')';
+		$sql = substr($sql, 0, strlen($sql) - 4);
 
 		$contents = array();
 		foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)

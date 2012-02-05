@@ -123,6 +123,31 @@ class Content_Content extends Model
 		return self::driver()->get_contents();
 	}
 
+	/**
+	 * Get contents by tags
+	 *
+	 * @param $tags - tag name as key, tag values as values
+	 * @return array of content ids - ex array(
+	 *                      array(
+	 *                        id      => 1,
+	 *                        content => Lots of content
+	 *                        tags    => array(
+	 *                          date     => array('2011-05-30'),
+	 *                          blogpost => array(NULL)
+	 *                          location => array('stockholm', 'uppsala')
+	 *                        )
+	 *                      ),
+	 *                      array(
+	 *                        id      => 2,
+	 *                        content => Lots of content
+	 *                        tags    => array(
+	 *                          date     => array('2011-05-30'),
+	 *                          blogpost => array(NULL)
+	 *                          location => array('stockholm', 'uppsala')
+	 *                        )
+	 *                      ),
+	 *                    )
+	 */
 	public static function get_contents_by_tags($tags)
 	{
 		return self::driver()->get_contents_by_tags($tags);
