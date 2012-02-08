@@ -7,9 +7,17 @@ It is compatible with version 3.1.x
 
 INSTALLATION INSTRUCTIONS
 =========================
-* Create a folder named "pajas" in your modules directory in your kohana v3.1 install
+* Create a folder named "pajas" in your modules directory in your kohana v3.2 install
 * Copy all pajas files to that folder
 * Add pajas to your activated modules in application/bootstrap.php
+* Setup your database in pajas/config/pdo.php
+* Create application/user_content and make it writeable
+
+or use git:
+
+* cd path-to-kohana/modules
+* git clone git://github.com/lillem4n/kohana-module-pajas.git pajas
+* Setup your database in pajas/config/pdo.php
 * Create application/user_content and make it writeable
 
 To see the example controller on a clean install, rename or remove
