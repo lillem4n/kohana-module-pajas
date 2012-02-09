@@ -19,7 +19,7 @@ abstract class Xsltcontroller extends Controller
 	 * If set to true
 	 * The Controller is a part of the administration kit'
 	 */
-	 public $admin_acl = FALSE;
+	public $admin_acl = FALSE;
 
 	/**
 	 * If set to TRUE, render() will automaticly be ran
@@ -105,6 +105,15 @@ abstract class Xsltcontroller extends Controller
 
 		// Create the content node
 		$this->xml_content = $this->xml->appendChild($this->dom->createElement('content'));
+
+		// If any delayed messages exists, add them and clean the session
+		if ( ! empty($_SESSION['admin']['messages']))
+		{
+			foreach ($_SESSION['admin']['messages'] as $message)
+				$this->add_message($message);
+
+			$_SESSION['admin']['messages'] = array();
+		}
 
 		return TRUE;
 	}
@@ -313,16 +322,28 @@ Array
 	 * Add simple message
 	 *
 	 * @param str $message
+	 * @param bol $sticky - sticks around for one redirect
 	 * @return boolean
 	 */
-	public function add_message($message)
+	public function add_message($message, $sticky = FALSE)
 	{
-		if ( ! isset($this->xml_content_messages))
+		if ($sticky)
 		{
-			$this->xml_content_messages = $this->xml_content->appendChild($this->dom->createElement('messages'));
+			if ( ! isset($_SESSION['admin']['messages']))
+				$_SESSION['admin']['messages'] = array();
+
+			$_SESSION['admin']['messages'][] = $message;
+		}
+		else
+		{
+			if ( ! isset($this->xml_content_messages))
+			{
+				$this->xml_content_messages = $this->xml_content->appendChild($this->dom->createElement('messages'));
+			}
+
+			xml::to_XML(array('message' => $message), $this->xml_content_messages);
 		}
 
-		xml::to_XML(array('message' => $message), $this->xml_content_messages);
 		return TRUE;
 	}
 
