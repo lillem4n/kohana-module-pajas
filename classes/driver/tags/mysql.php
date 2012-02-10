@@ -59,7 +59,7 @@ class Driver_Tags_Mysql extends Driver_Tags
 
 	public function rename($id, $new_name)
 	{
-		if ( ! Tags::get_id_by_name($new_name))
+		if (Tags::get_id_by_name($new_name) !== FALSE)
 		{
 			$this->pdo->exec('UPDATE tags SET name = '.$this->pdo->quote($new_name).' WHERE id = '.$this->pdo->quote($id).';');
 			return TRUE;
