@@ -524,7 +524,8 @@ class Model_User extends Model
 
 			if (isset($user_data['password']))
 			{
-				self::driver()->set_password($this->get_user_id(), self::password_encrypt($user_data['password'], $this->get_username()));
+				if ($user_data['password'] != '')
+					self::driver()->set_password($this->get_user_id(), self::password_encrypt($user_data['password'], $this->get_username()));
 				unset($user_data['password']);
 			}
 
