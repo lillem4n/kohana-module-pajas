@@ -124,7 +124,10 @@ class Model_User extends Model
 	 */
 	public static function get_data_field_id($field_name)
 	{
-		return self::driver()->get_data_field_id($field_name);
+		if ($field_id = self::driver()->get_data_field_id($field_name))
+			return $field_id;
+		else
+			return self::driver()->new_field($field_name);
 	}
 
 	/**

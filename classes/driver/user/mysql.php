@@ -229,10 +229,10 @@ class Driver_User_Mysql extends Driver_User
 
 	public function new_field($field_name)
 	{
-		if (User::field_name_available($field_name) && $field_name != 'id')
+		if ($field_name != 'id')
 		{
-			$this->pdo->exec('INSERT INTO user_data_fields (name) VALUES('.$this->pdo->quote($field_name).')');
-			return $this->pdo->lastInsertId();
+			$this->pdo->exec('INSERT INTO user_data_fields (name) VALUES('.$this->pdo->quote($field_name).') ON DUPLICATE KEY UPDATE id = id');
+			return $this->get_data_field_id($field_name);
 		}
 		else return FALSE;
 	}
@@ -323,11 +323,7 @@ class Driver_User_Mysql extends Driver_User
 						$sql .= '
 							(
 								'.$this->pdo->quote($user_id).',
-								(
-									SELECT user_data_fields.id
-									FROM   user_data_fields
-									WHERE  user_data_fields.name = '.$this->pdo->quote($field).'
-								),
+								'.User::get_data_field_id($field).',
 								'.$this->pdo->quote($content_piece).'
 							),';
 					}
