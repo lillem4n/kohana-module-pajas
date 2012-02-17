@@ -9,6 +9,7 @@
 		method="html"
 		encoding="utf-8"
 		indent="no"
+		doctype-system="about:legacy-compat"
 	/>
 
 	<xsl:key name="nav_categories" match="/root/content/menuoptions/menuoption" use="@category" />
@@ -44,8 +45,8 @@
 
 				<!-- jQuery -->
 				<link type="text/css" href="{/root/meta/base}css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" media="all" />
-				<script type="text/javascript" src="/js/jquery-1.7.1.min.js" />
-				<script type="text/javascript" src="/js/jquery-ui-1.8.17.custom.min.js" />
+				<script type="text/javascript" src="{/root/meta/base}js/jquery-1.7.1.min.js" />
+				<script type="text/javascript" src="{/root/meta/base}js/jquery-ui-1.8.17.custom.min.js" />
 
 				<title><xsl:value-of select="$title" /></title>
 				<!--[if lt IE 7]>
