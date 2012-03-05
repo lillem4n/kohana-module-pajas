@@ -357,7 +357,13 @@ Array
 
 		if ($uri == FALSE)
 		{
-			if (isset($_SERVER['HTTP_REFERER']))
+			if (isset($_SESSION['redirect']))
+			{
+				$redirect = $_SESSION['redirect'];
+				unset($_SESSION['redirect']);
+				$this->request->redirect($redirect);
+			}
+			elseif (isset($_SERVER['HTTP_REFERER']))
 			{
 				$this->request->redirect($_SERVER['HTTP_REFERER']);
 			}
