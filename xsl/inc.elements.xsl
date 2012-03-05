@@ -129,6 +129,10 @@
 		<pre><xsl:apply-templates select="node()" mode="elements" /></pre>
 	</xsl:template>
 
+	<xsl:template match="hr" mode="elements">
+		<hr />
+	</xsl:template>
+
 	<!-- Table stuff -->
 	<xsl:template match="table" mode="elements">
 		<table><xsl:apply-templates select="node()" mode="elements" /></table>
