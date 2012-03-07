@@ -65,6 +65,7 @@ abstract class Xsltcontroller extends Controller
 	public function __construct(Request $request, Response $response)
 	{
 		parent::__construct($request, $response);
+		$session = Session::instance();
 
 		// Set transformation
 		if (isset($_GET['transform']))
@@ -107,12 +108,12 @@ abstract class Xsltcontroller extends Controller
 		$this->xml_content = $this->xml->appendChild($this->dom->createElement('content'));
 
 		// If any delayed messages exists, add them and clean the session
-		if ( ! empty($_SESSION['admin']['messages']))
+		if ( ! empty($_SESSION['messages']))
 		{
-			foreach ($_SESSION['admin']['messages'] as $message)
+			foreach ($_SESSION['messages'] as $message)
 				$this->add_message($message);
 
-			$_SESSION['admin']['messages'] = array();
+			$_SESSION['messages'] = array();
 		}
 
 		return TRUE;
@@ -133,16 +134,18 @@ abstract class Xsltcontroller extends Controller
 		$user = new User;
 
 		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE && $this->admin_acl == FALSE)
-				throw new HTTP_Exception_403('403 Forbidden');
+			throw new HTTP_Exception_403('403 Forbidden');
 		elseif ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE && $this->admin_acl == TRUE )
-				$this->redirect('admin/login');
+			$this->redirect('admin/login');
 
 		if ($this->transform === TRUE || $this->transform === FALSE || $this->transform == 'auto')
 		{
 			$this->dom->insertBefore(
 				$this->dom->createProcessingInstruction(
-					'xml-stylesheet', 'type="text/xsl" href="' . $this->xslt_path . $this->xslt_stylesheet . '.xsl"'),
-					$this->xml);
+					'xml-stylesheet', 'type="text/xsl" href="' . $this->xslt_path . $this->xslt_stylesheet . '.xsl"'
+				),
+				$this->xml
+			);
 
 			// If the stylesheet name includes an additional path, we need to extract it
 			$extra_xslt_path = '';
@@ -329,10 +332,10 @@ Array
 	{
 		if ($sticky)
 		{
-			if ( ! isset($_SESSION['admin']['messages']))
-				$_SESSION['admin']['messages'] = array();
+			if ( ! isset($_SESSION['messages']))
+				$_SESSION['messages'] = array();
 
-			$_SESSION['admin']['messages'][] = $message;
+			$_SESSION['messages'][] = $message;
 		}
 		else
 		{
