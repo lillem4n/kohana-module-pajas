@@ -34,4 +34,15 @@ return array
 		'mysql'    => 'mysql:dbname={database_name};host={hostname}',
 		'sqlite'   => 'sqlite:{database_name}', // Database name should be the full path to the database file, or ":memory"
 	),
+
+	'initial_query' => array(
+		'mysql' => '
+								SET character_set_client = utf8;
+								SET character_set_connection = utf8;
+								SET character_set_database = utf8;
+								SET character_set_results = utf8;
+								SET character_set_server = utf8;
+								SET character_set_system = utf8;
+							',
+	),
 );
