@@ -107,11 +107,45 @@ class Controller_Media extends Controller
 
 		// Check if it needs resizing
 		$cache_ending = '';
-		if (isset($_GET['width']) && preg_match('/^\d+$/', $_GET['width']))   $cache_ending .= '_width_'.$_GET['width'];
-		elseif (isset($_GET['width']))                                        unset($_GET['width']);
 
-		if (isset($_GET['height']) && preg_match('/^\d+$/', $_GET['height'])) $cache_ending .= '_height_'.$_GET['height'];
-		elseif (isset($_GET['height']))                                       unset($_GET['height']);
+		list($original_width, $original_height) = getimagesize(Kohana::$config->load('user_content.dir').'/images/'.$filename);
+		$wh_ratio = $original_width / $original_height;
+
+		// Get params
+		if (isset($_GET['width'])     && preg_match('/^\d+$/', $_GET['width'])) {}
+		else $_GET['width']     = FALSE;
+
+		if (isset($_GET['height'])    && preg_match('/^\d+$/', $_GET['height'])) {}
+		else $_GET['height']    = FALSE;
+
+		if (isset($_GET['maxwidth'])  && preg_match('/^\d+$/', $_GET['maxwidth'])) {}
+		else $_GET['maxwidth']  = FALSE;
+
+		if (isset($_GET['maxheight']) && preg_match('/^\d+$/', $_GET['maxheight'])) {}
+		else $_GET['maxheight'] = FALSE;
+
+		// Find out new dimensions
+		if ($_GET['maxwidth'] && $_GET['maxheight'] && ! $_GET['height'] && ! $_GET['width'])
+		{
+			if (($_GET['maxwidth'] / $_GET['maxheight']) < $wh_ratio) $_GET['width']  = $_GET['maxwidth'];
+			else                                                      $_GET['height'] = $_GET['maxheight'];
+		}
+		elseif ($_GET['maxwidth'] && ! $_GET['maxheight'] && ! $_GET['height'] && ! $_GET['width'])
+			$_GET['width'] = $_GET['maxwidth'];
+		elseif ( ! $_GET['maxwidth'] && $_GET['maxheight'] && ! $_GET['height'] && ! $_GET['width'])
+			$_GET['height'] = $_GET['maxheight'];
+
+		if ($_GET['height'] && ! $_GET['width']) $_GET['width']  = round($wh_ratio * $_GET['height']);
+		if ($_GET['width'] && ! $_GET['height']) $_GET['height'] = round($_GET['width'] / $wh_ratio);
+
+		if ( ! $_GET['width'] && ! $_GET['height'])
+		{
+			$_GET['height'] = $original_height;
+			$_GET['width']  = $original_width;
+		}
+
+		if ($_GET['width']  != $original_width)  $cache_ending .= '_width_'.$_GET['width'];
+		if ($_GET['height'] != $original_height) $cache_ending .= '_height_'.$_GET['height'];
 
 		if ($cache_ending != '')
 		{
@@ -132,51 +166,18 @@ class Controller_Media extends Controller
 				exec('chmod -R a+w '.Kohana::$cache_dir.'/user_content/images'); // Make sure its writeable by all
 
 				// Create a new cached resized file
-				list($original_width, $original_height) = getimagesize(Kohana::$config->load('user_content.dir').'/images/'.$filename);
-				$wh_ratio = $original_width / $original_height;
-
-				if (isset($_GET['width']))  $new_width  = $_GET['width'];
-				else                        $new_width  = $original_width;
-
-				if (isset($_GET['height'])) $new_height = $_GET['height'];
-				else                        $new_height = $original_height;
-
-				if ( ! isset($_GET['width']))
-				{
-					$calculated_width  = $new_height * $wh_ratio;
-					$calculated_height = $new_height;
-				}
-				elseif ( ! isset($_GET['height']))
-				{
-					$calculated_height = $new_width / $wh_ratio;
-					$calculated_width  = $new_width;
-				}
-				else
-				{
-					if ($new_width / $new_height > $wh_ratio)
-					{
-						$calculated_width  = $new_height * $wh_ratio;
-						$calculated_height = $new_height;
-					}
-					else
-					{
-						$calculated_height = $new_width / $wh_ratio;
-						$calculated_width  = $new_width;
-					}
-				}
-
 				if ($file_ending == 'jpg' || $file_ending == 'jpeg')
 				{
 					$src = imagecreatefromjpeg(Kohana::$config->load('user_content.dir').'/images/'.$filename);
-					$dst = imagecreatetruecolor($calculated_width, $calculated_height);
-					imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
+					$dst = imagecreatetruecolor($_GET['width'], $_GET['height']);
+					imagecopyresampled($dst, $src, 0, 0, 0, 0, $_GET['width'], $_GET['height'], $original_width, $original_height);
 					imagejpeg($dst, $file);
 				}
 				elseif ($file_ending == 'png')
 				{
 					$src = imagecreatefrompng(Kohana::$config->load('user_content.dir').'/images/'.$filename);
-					$dst = imagecreatetruecolor($calculated_width, $calculated_height);
-					imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
+					$dst = imagecreatetruecolor($_GET['width'], $_GET['height']);
+					imagecopyresampled($dst, $src, 0, 0, 0, 0, $_GET['width'], $_GET['height'], $original_width, $original_height);
 					imagepng($dst, $file);
 				}
 /* Somethings fucked up with the colors in GIFs...
