@@ -51,7 +51,7 @@ abstract class Xsltcontroller extends Controller
 	/**
 	 * The filename of the XSLT stylesheet, excluding .xsl
 	 */
-	public $xslt_stylesheet = 'generic';
+	public $xslt_stylesheet = FALSE;
 
 
 	/**
@@ -116,7 +116,7 @@ abstract class Xsltcontroller extends Controller
 			$_SESSION['messages'] = array();
 		}
 
-		return TRUE;
+		if ($this->xslt_stylesheet == FALSE) $this->xslt_stylesheet = $this->request->controller();
 	}
 
 	public function before() {}
