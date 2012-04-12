@@ -457,7 +457,8 @@ class Driver_Content_Mysql extends Driver_Content
 				tag_value
 			FROM
 				content_images_tags
-				JOIN tags ON tags.id = content_images_tags.tag_id';
+				JOIN tags ON tags.id = content_images_tags.tag_id
+			GROUP BY tag_id, tag_value';
 
 		if ($image_name)
 		{
