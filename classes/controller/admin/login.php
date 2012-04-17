@@ -5,8 +5,6 @@ class Controller_Admin_Login extends Admincontroller {
 	public function action_index()
 	{
 
-		$this->ignore_acl = TRUE; // Ignore user role check.
-
 		Session::instance();
 		$this->xslt_stylesheet = 'admin/login';
 
@@ -45,7 +43,7 @@ class Controller_Admin_Login extends Admincontroller {
 
 			$user = new User(FALSE, $post_values['username'], $post_values['password']);
 
-			if ($user->logged_in() && ($user->get_user_data('role')) && in_array('admin', $user->get_user_data('role')))
+			if ($user->logged_in() && ($user->get_user_data('role')) )
 			{
 				// The user logged in correctly, and got the role "admin". All good
     		$this->redirect('/admin');
@@ -54,7 +52,7 @@ class Controller_Admin_Login extends Admincontroller {
 			{
 				$_SESSION['modules']['pajas']['error'] = 'Wrong username or password';
 			}
-			elseif (!($user->get_user_data('role')) || !in_array('admin', $user->get_user_data('role')))
+			elseif (!($user->get_user_data('role')) )
 			{
 				$_SESSION['modules']['pajas']['error'] = 'You are not authorized';
 			}

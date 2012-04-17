@@ -26,7 +26,6 @@ abstract class Admincontroller extends Xsltcontroller
 			$user = User::instance();
 			if ( ! $user->has_access_to($_SERVER['REQUEST_URI']))
 				$this->admin_acl = TRUE;
-//				var_dump($this->admin_acl);
 
 			if ($user->logged_in())
 			{
