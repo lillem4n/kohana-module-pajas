@@ -89,6 +89,26 @@ class Content_Content extends Model
 	}
 
 	/**
+	 * Get content id by tags
+	 *
+	 * Will return first matching id for these tags or FALSE if none is found
+	 *
+	 * @param $tags - tag name as key, tag values as values
+	 * @return int or FALSE
+	 */
+	public static function get_content_id_by_tags($tags)
+	{
+		$contents = self::driver()->get_contents_by_tags($tags);
+		if (count($contents))
+		{
+			list($content_id) = array_keys($contents);
+			return $content_id;
+		}
+
+		return FALSE;
+	}
+
+	/**
 	 * Get contents
 	 *
 	 * @return array - ex array(
@@ -237,6 +257,20 @@ class Content_Content extends Model
 		}
 
 		return FALSE;
+	}
+
+	public static function update_content_by_tags($content_string, $tags, $create_if_not_exists = TRUE)
+	{
+		$content_id = self::get_content_id_by_tags($tags);
+		if ($content_id)
+		{
+			$content = new self($content_id);
+			$content->update_content($content_string);
+		}
+		elseif ($create_if_not_exists)
+			$content_id = self::new_content($content_string, $tags);
+
+		return $content_id;
 	}
 
 }
