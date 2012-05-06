@@ -11,7 +11,7 @@ class Controller_Admin_Content extends Admincontroller {
 	public function action_index()
 	{
 		$this->xml_content_contents = $this->xml_content->appendChild($this->dom->createElement('contents'));
-		foreach (Content_Content::get_contents() as $content)
+		foreach (Content::get_contents() as $content)
 		{
 			$content_node = $this->xml_content_contents->appendChild($this->dom->createElement('content'));
 			$content_node->setAttribute('id', $content['id']);
@@ -47,7 +47,7 @@ class Controller_Admin_Content extends Admincontroller {
 				}
 			}
 
-			$content_id = Content_Content::new_content($post_values['content'], $tags);
+			$content_id = Content::new_content($post_values['content'], $tags);
 			$this->add_message('Content #'.$content_id.' added');
 		}
 	}
@@ -55,7 +55,7 @@ class Controller_Admin_Content extends Admincontroller {
 	public function action_edit_content()
 	{
 		$id      = $this->request->param('options');
-		$content = new Content_Content($id);
+		$content = new Content($id);
 
 		if ($content->get_content_id())
 		{
@@ -108,7 +108,7 @@ class Controller_Admin_Content extends Admincontroller {
 
 	public function action_rm_content()
 	{
-		$content = new Content_Content($this->request->param('options'));
+		$content = new Content($this->request->param('options'));
 		$content->rm_content();
 
 		$this->redirect();

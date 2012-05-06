@@ -28,7 +28,7 @@ class Controller_Generic extends Xsltcontroller
 			$contents = array();
 			foreach ($tag_ids as $tag_id)
 			{
-				foreach (Content_Content::get_contents_by_tag_id($tag_id) as $content)
+				foreach (Content::get_contents_by_tag_id($tag_id) as $content)
 				{
 					if ( ! isset($contents[$content['id'].'content']))
 					{
