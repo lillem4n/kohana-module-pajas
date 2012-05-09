@@ -116,10 +116,10 @@ abstract class Xsltcontroller extends Controller
 	 */
 	public function render()
 	{
-
 		// If page is restricted, check if visitor is logged in, and got access
 		// Check if the page is restricted
-		$user = new User;
+		$user             = new User;
+		$this->ignore_acl = ($_SERVER['REQUEST_URI'] == '/admin/login') ? TRUE : FALSE;
 
 		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE)
 			throw new HTTP_Exception_403('403 Forbidden');
