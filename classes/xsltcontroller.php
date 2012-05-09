@@ -10,18 +10,6 @@ abstract class Xsltcontroller extends Controller
 {
 
 	/**
-	 * If set to true, won't show 403.'
-	 *
-	 */
-	public $ignore_acl = FALSE;
-
-	/*
-	 * If set to true
-	 * The Controller is a part of the administration kit'
-	 */
-	public $admin_acl = FALSE;
-
-	/**
 	 * If set to TRUE, render() will automaticly be ran
 	 * when the controller is done.
 	 */
@@ -133,10 +121,8 @@ abstract class Xsltcontroller extends Controller
 		// Check if the page is restricted
 		$user = new User;
 
-		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE && $this->admin_acl == FALSE)
+		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE)
 			throw new HTTP_Exception_403('403 Forbidden');
-		elseif ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE && $this->admin_acl == TRUE )
-			$this->redirect('admin/login');
 
 		if ($this->transform === TRUE || $this->transform === FALSE || $this->transform == 'auto')
 		{
@@ -228,7 +214,6 @@ abstract class Xsltcontroller extends Controller
 		}
 
 		return TRUE;
-
 	}
 
 	public function after()
@@ -257,9 +242,7 @@ abstract class Xsltcontroller extends Controller
 	public function add_error($error)
 	{
 		if ( ! isset($this->xml_content_errors))
-		{
 			$this->xml_content_errors = $this->xml_content->appendChild($this->dom->createElement('errors'));
-		}
 
 		xml::to_XML(array('error' => $error), $this->xml_content_errors);
 		return TRUE;
@@ -294,28 +277,19 @@ Array
 
 
 		if ( ! isset($this->xml_content_errors))
-		{
 			$this->xml_content_errors = $this->xml_content->appendChild($this->dom->createElement('errors'));
-		}
 
 		if ( ! isset($this->xml_content_errors_form_errors))
-		{
 			$this->xml_content_errors_form_errors = $this->xml_content_errors->appendChild($this->dom->createElement('form_errors'));
-		}
 
 		foreach ($errors as $field => $field_errors)
 		{
 			if (is_array($field_errors))
 			{
 				foreach ($field_errors as $field_error)
-				{
 					xml::to_XML(array($field => $field_error), $this->xml_content_errors_form_errors);
-				}
 			}
-			else
-			{
-				xml::to_XML(array($field => array('message' => $field_errors)), $this->xml_content_errors_form_errors);
-			}
+			else xml::to_XML(array($field => array('message' => $field_errors)), $this->xml_content_errors_form_errors);
 		}
 
 		return TRUE;
@@ -340,9 +314,7 @@ Array
 		else
 		{
 			if ( ! isset($this->xml_content_messages))
-			{
 				$this->xml_content_messages = $this->xml_content->appendChild($this->dom->createElement('messages'));
-			}
 
 			xml::to_XML(array('message' => $message), $this->xml_content_messages);
 		}
@@ -367,13 +339,9 @@ Array
 				$this->request->redirect($redirect);
 			}
 			elseif (isset($_SERVER['HTTP_REFERER']))
-			{
 				$this->request->redirect($_SERVER['HTTP_REFERER']);
-			}
 			else
-			{
 				$this->request->redirect(Kohana::$base_url);
-			}
 		}
 
 		$this->request->redirect($uri);
@@ -388,9 +356,7 @@ Array
 	public function set_formdata($formdata)
 	{
 		if ( ! isset($this->xml_content_formdata))
-		{
 			$this->xml_content_formdata = $this->xml_content->appendChild($this->dom->createElement('formdata'));
-		}
 
 		$formatted_formdata = array();
 		foreach ($formdata as $field => $data)
