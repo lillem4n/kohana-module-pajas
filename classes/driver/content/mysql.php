@@ -490,10 +490,8 @@ class Driver_Content_Mysql extends Driver_Content
 			$sql = 'INSERT INTO content_tags (content_id, tag_id, tag_value) VALUES';
 			foreach ($tags as $tag_name => $tag_values)
 			{
-				if ($tag_name == 0 && ! is_array($tag_values))
-				{
+				if (is_int($tag_name) && ! is_array($tag_values))
 					$sql .= '('.$this->pdo->quote($content_id).','.$this->pdo->quote(Tags::get_id_by_name($tag_values)).',NULL),';
-				}
 				else
 				{
 					if ( ! is_array($tag_values)) $tag_values = array($tag_values);
