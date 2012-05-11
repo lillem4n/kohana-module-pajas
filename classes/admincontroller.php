@@ -18,14 +18,14 @@ abstract class Admincontroller extends Xsltcontroller
 	{
 		parent::__construct($request, $response);
 
+		$this->acl_redirect_url = '/admin/login';
+
 		if (class_exists('User'))
 		{
 			/**
 			 * Must be a logged in user with admin role to access the admin pages
 			 */
 			$user = User::instance();
-			if ( ! $user->has_access_to($_SERVER['REQUEST_URI']))
-				$this->admin_acl = TRUE;
 
 			if ($user->logged_in())
 			{
@@ -35,9 +35,8 @@ abstract class Admincontroller extends Xsltcontroller
 					'data'     => array(),
 				);
 				foreach ($user->get_user_data() as $field_name => $field_value)
-				{
 					$user_data['data']['field name="' . $field_name . '"'] = $field_value;
-				}
+
 				xml::to_XML(array('user_data' => $user_data), $this->xml_meta);
 			}
 		}

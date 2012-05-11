@@ -4,24 +4,13 @@ class Controller_Admin_Login extends Admincontroller {
 
 	public function action_index()
 	{
-
 		Session::instance();
 		$this->xslt_stylesheet = 'admin/login';
+		$this->ignore_acl      = TRUE; // This page should be accessible by everyone
 
 		$user = User::instance();
-		if
-		(
-			$user->logged_in() &&
-			(
-				$user->get_user_data('role') == 'admin' ||
-				(
-					is_array($user->get_user_data('role')) && in_array('admin', $user->get_user_data('role'))
-				)
-			)
-		)
-		{
+		if ($user->has_access_to('/admin'))
 			$this->redirect('/admin');
-		}
 
 		if (isset($_SESSION['modules']['pajas']['error']))
 		{
@@ -43,23 +32,14 @@ class Controller_Admin_Login extends Admincontroller {
 
 			$user = new User(FALSE, $post_values['username'], $post_values['password']);
 
-			if ($user->logged_in() && ($user->get_user_data('role')) )
-			{
-				// The user logged in correctly, and got the role "admin". All good
+			if ($user->logged_in() && $user->has_access_to('admin'))
     		$this->redirect('/admin');
-			}
-			elseif (!$user->logged_in())
-			{
+			elseif ( ! $user->logged_in())
 				$_SESSION['modules']['pajas']['error'] = 'Wrong username or password';
-			}
-			elseif (!($user->get_user_data('role')) )
-			{
+			elseif ( ! $user->has_access_to('admin'))
 				$_SESSION['modules']['pajas']['error'] = 'You are not authorized';
-			}
 			else
-			{
 				$_SESSION['modules']['pajas']['error'] = 'Unknown error';
-			}
 		}
 		$this->redirect();
 	}

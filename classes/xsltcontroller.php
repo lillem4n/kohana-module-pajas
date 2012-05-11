@@ -16,6 +16,18 @@ abstract class Xsltcontroller extends Controller
 	public $auto_render = TRUE;
 
 	/**
+	 * If set will show page even if the user has no access to it
+	 * according to the ACL
+	 */
+	public $ignore_acl = FALSE;
+
+	/**
+	 * URL to redirect to if this URL is restricted
+	 * If set to FALSE will give 403 instead
+	 */
+	public $acl_redirect_url = FALSE;
+
+	/**
 	 * Decides where the transformation of XSLT->HTML
 	 * should be done
 	 * ATTENTION! This setting is configurable in xslt.php
@@ -118,11 +130,13 @@ abstract class Xsltcontroller extends Controller
 	{
 		// If page is restricted, check if visitor is logged in, and got access
 		// Check if the page is restricted
-		$user             = new User;
-		$this->ignore_acl = ($_SERVER['REQUEST_URI'] == '/admin/login') ? TRUE : FALSE;
+		$user = new User;
 
 		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE)
-			throw new HTTP_Exception_403('403 Forbidden');
+		{
+			if ($this->acl_redirect_url) $this->redirect($this->acl_redirect_url);
+			else                         throw new HTTP_Exception_403('403 Forbidden');
+		}
 
 		if ($this->transform === TRUE || $this->transform === FALSE || $this->transform == 'auto')
 		{
