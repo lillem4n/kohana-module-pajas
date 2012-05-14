@@ -431,6 +431,18 @@ class Model_User extends Model
 	}
 
 	/**
+	 * Add role URI
+	 *
+	 * @param str $role
+	 * @param str $uri
+	 * @return boolean
+	 */
+	public static function new_role_uri($role, $uri)
+	{
+		self::driver()->new_role_uri($role, $uri);
+	}
+
+	/**
 	 * Create a new user
 	 *
 	 * @param str $username
@@ -488,6 +500,18 @@ class Model_User extends Model
 	public static function rm_field($field_id)
 	{
 		return self::driver()->rm_field($field_id);
+	}
+
+	/**
+	 * Remove role uri
+	 *
+	 * @param str $role
+	 * @param str $uri
+	 * @return boolean
+	 */
+	public static function rm_role_uri($role, $uri)
+	{
+		return self::driver()->rm_role_uri($role, $uri);
 	}
 
 	/**

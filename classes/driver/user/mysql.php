@@ -79,9 +79,7 @@ class Driver_User_Mysql extends Driver_User
 		$user_data = array();
 
 		foreach ($this->pdo->query($sql) as $row)
-		{
 			$user_data[$row['field_name']][] = $row['data'];
-		}
 
 		ksort($user_data);
 
@@ -112,9 +110,7 @@ class Driver_User_Mysql extends Driver_User
 	{
 		$roles = array();
 		foreach ($this->pdo->query('SELECT * FROM user_roles_rights')->fetchAll(PDO::FETCH_ASSOC) as $row)
-		{
 			$roles[$row['role']][] = $row['uri'];
-		}
 
 		return $roles;
 	}
@@ -239,7 +235,7 @@ class Driver_User_Mysql extends Driver_User
 
 	public function new_role_uri($role, $uri)
 	{
-		return $this->pdo->exec('INSERT INTO user_roles_rights (role, uri) VALUES('.$this->pdo->quote($role).','.$this->pdo->quote($uri).')');
+		return $this->pdo->exec('REPLACE INTO user_roles_rights (role, uri) VALUES('.$this->pdo->quote($role).','.$this->pdo->quote($uri).')');
 	}
 
 	public function new_user($username, $password, $user_data = array())
@@ -277,6 +273,11 @@ class Driver_User_Mysql extends Driver_User
 		$this->pdo->exec('DELETE FROM user_users_data WHERE field_id = '.$this->pdo->quote($field_id));
 		$this->pdo->exec('DELETE FROM user_data_fields WHERE id = '.$this->pdo->quote($field_id));
 		return TRUE;
+	}
+
+	public function rm_role_uri($role, $uri)
+	{
+		$this->pdo->exec('DELETE FROM user_roles_rights WHERE role = '.$this->pdo->quote($role).' AND uri = '.$this->pdo->quote($uri));
 	}
 
 	public function rm_user($user_id)
