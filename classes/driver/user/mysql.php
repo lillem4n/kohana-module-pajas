@@ -187,23 +187,27 @@ class Driver_User_Mysql extends Driver_User
 		if ( ! empty($order_by))
 		{
 			if (is_string($order_by) && in_array($order_by, $data_fields))
-			{
 				$sql .= ' ORDER BY IF(ISNULL('.Mysql::quote_identifier($order_by).'),1,0),'.Mysql::quote_identifier($order_by);
-			}
+			elseif ($order_by == 'username')
+				$sql .= ' ORDER BY username';
 			elseif (is_array($order_by))
 			{
 				$order_by_set = FALSE;
 
 				foreach ($order_by as $field => $order)
 				{
-					if (in_array($field, $data_fields))
+					if (in_array($field, $data_fields) || $field == 'username')
 					{
 						if ( ! $order_by_set)
 						{
 							$sql .= ' ORDER BY ';
 							$order_by_set = TRUE;
 						}
-						$sql .= 'IF(ISNULL('.Mysql::quote_identifier($field).'),1,0),'.Mysql::quote_identifier($field);
+
+						if ($field == 'username')
+							$sql .= 'username';
+						else
+							$sql .= 'IF(ISNULL('.Mysql::quote_identifier($field).'),1,0),'.Mysql::quote_identifier($field);
 
 						if ($order == 'ASC' || $order == 'DESC') $sql .= ' '.$order;
 
