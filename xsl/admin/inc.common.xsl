@@ -65,7 +65,7 @@
 
 		<label for="{$id}">
 			<xsl:if test="$label"><xsl:value-of select="$label" /></xsl:if>
-			<xsl:if test="not($label)">
+			<xsl:if test="not($label) and not($type = 'submit')">
 				<xsl:value-of select="translate(substring($id, 1, 1), 'abcdefghijklmnopqrstuvwxyzåäö', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ')" />
 				<xsl:value-of select="substring($id, 2)" />
 				<xsl:text>:</xsl:text>
@@ -244,15 +244,16 @@
 		</label>
 
 		<!-- Error message -->
-		<p class="error">
-			<xsl:if test="$error != ''">
-				<xsl:value-of select="$error" />
-			</xsl:if>
-			<xsl:if test="$error = '' and /root/content/errors/form_errors/*[local-name() = $id]/message">
-				<xsl:value-of select="/root/content/errors/form_errors/*[local-name() = $id]/message" />
-			</xsl:if>
-			<xsl:text>&#160;</xsl:text>
-		</p>
+		<xsl:if test="$error != '' or ($error = '' and /root/content/errors/form_errors/*[local-name() = $id]/message)">
+			<p class="error">
+				<xsl:if test="$error != ''">
+					<xsl:value-of select="$error" />
+				</xsl:if>
+				<xsl:if test="$error = '' and /root/content/errors/form_errors/*[local-name() = $id]/message">
+					<xsl:value-of select="/root/content/errors/form_errors/*[local-name() = $id]/message" />
+				</xsl:if>
+			</p>
+		</xsl:if>
 
 	</xsl:template>
 	<xsl:template name="form_line_option">
