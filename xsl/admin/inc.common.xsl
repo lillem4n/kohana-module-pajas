@@ -111,7 +111,12 @@
 				<!-- No input field, just plain text -->
 				<xsl:if test="$type = 'none'">
 					<span class="instead_of_input">
-						<xsl:value-of select="$value" />
+						<xsl:if test="$value = '' and /root/content/formdata/field[@id = $id]">
+							<xsl:value-of select="/root/content/formdata/field[@id = $id]" />
+						</xsl:if>
+						<xsl:if test="not($value = '' and /root/content/formdata/field[@id = $id])">
+							<xsl:value-of select="$value" />
+						</xsl:if>
 					</span>
 				</xsl:if>
 
