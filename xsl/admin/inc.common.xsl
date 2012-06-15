@@ -64,7 +64,12 @@
 		<xsl:param name="cols" />
 
 		<label for="{$id}">
-			<xsl:value-of select="$label" />
+			<xsl:if test="$label"><xsl:value-of select="$label" /></xsl:if>
+			<xsl:if test="not($label)">
+				<xsl:value-of select="translate(substring($id, 1, 1), 'abcdefghijklmnopqrstuvwxyzåäö', 'ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ')" />
+				<xsl:value-of select="substring($id, 2)" />
+				<xsl:text>:</xsl:text>
+			</xsl:if>
 
 			<!-- Options is not available, that means this is either an input or a textarea -->
 			<xsl:if test="(not($options) or not($options/*)) and not($option_ids) and not($option_ids)">
