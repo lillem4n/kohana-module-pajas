@@ -63,19 +63,13 @@ class Model_User extends Model
 		else                  $this->instance_name = $instance_name;
 
 		if ($user_id)
-		{
 			if ( ! $this->login_by_user_id($user_id)) throw new Exception('Invalid user ID');
-		}
 		elseif (($username) && ($password))
-		{
 			$this->login_by_username_and_password($username, $password);
-		}
 		elseif ($session)
 		{
 			if (isset($_SESSION['modules']['pajas'][$instance_name]))
-			{
 				$this->login_by_user_id($_SESSION['modules']['pajas'][$instance_name]);
-			}
 		}
 
 		self::$instances[$instance_name] = $this;
@@ -126,8 +120,8 @@ class Model_User extends Model
 	{
 		if ($field_id = self::driver()->get_data_field_id($field_name))
 			return $field_id;
-		else
-			return self::driver()->new_field($field_name);
+
+		return self::driver()->new_field($field_name);
 	}
 
 	/**
@@ -159,9 +153,8 @@ class Model_User extends Model
 	public function get_username()
 	{
 		if ($this->username)
-		{
 			return $this->username;
-		}
+
 		return FALSE;
 	}
 
@@ -191,14 +184,10 @@ class Model_User extends Model
 	  	if ($field)
 	  	{
 	  		if (isset($this->user_data[$field]))
-	  		{
 	  			return $this->user_data[$field];
-	  		}
 	  	}
 	  	else
-	  	{
 		    return $this->user_data;
-	  	}
 	  }
 	  return FALSE;
 	}
@@ -211,9 +200,8 @@ class Model_User extends Model
 	public function get_user_id()
 	{
 		if ($this->user_id)
-		{
 			return $this->user_id;
-		}
+
 		return FALSE;
 	}
 
@@ -318,13 +306,9 @@ class Model_User extends Model
 	public static function instance($instance_name = 'default')
 	{
 		if (isset(self::$instances[$instance_name]))
-		{
 			return self::$instances[$instance_name];
-		}
-		else
-		{
-			return new User(FALSE, FALSE, FALSE, $instance_name);
-		}
+
+		return new User(FALSE, FALSE, FALSE, $instance_name);
 	}
 
 	/**
@@ -469,9 +453,8 @@ class Model_User extends Model
 			if ($session)
 			{
 				if (!isset($_SESSION['modules']))
-				{
 					$_SESSION['modules'] = array('pajas' => array());
-				}
+
 				$_SESSION['modules']['pajas'][$load_to_instance] = $user_id;
 			}
 			return $new_user_instance;
@@ -522,9 +505,8 @@ class Model_User extends Model
 	public function rm_user()
 	{
 		if ($this->logged_in())
-		{
 			return self::driver()->rm_user($this->get_user_id());
-		}
+
 		return FALSE;
 	}
 
@@ -553,6 +535,7 @@ class Model_User extends Model
 			{
 				if ($user_data['password'] != '')
 					self::driver()->set_password($this->get_user_id(), self::password_encrypt($user_data['password'], $this->get_username()));
+
 				unset($user_data['password']);
 			}
 
@@ -578,9 +561,8 @@ class Model_User extends Model
 		$user_id = self::driver()->get_user_id_by_username($username);
 
 		if ( ! empty($user_id) || strtolower($username) == 'root')
-		{
 			return FALSE;
-		}
+
 		else return TRUE;
 	}
 

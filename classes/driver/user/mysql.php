@@ -115,7 +115,7 @@ class Driver_User_Mysql extends Driver_User
 		return $roles;
 	}
 
-	public function get_users($q = FALSE, $start = 0, $limit = 100, $order_by = FALSE, $field_search = FALSE)
+	public function get_users($q = FALSE, $start = 0, $limit = FALSE, $order_by = FALSE, $field_search = FALSE)
 	{
 /* Same thing, but with JOIN. Have a bug when there are multiple values of the same data_field... and also isnt faster with current DB structure * /
 		$columns = 'users.id,users.username,';
@@ -174,9 +174,7 @@ class Driver_User_Mysql extends Driver_User
 			foreach ($field_search as $field => $search_string)
 			{
 				if ($field_id = array_search($field, $data_fields))
-				{
 					$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data LIKE '.$this->pdo->quote('%'.$search_string.'%').') OR';
-				}
 			}
 		}
 
