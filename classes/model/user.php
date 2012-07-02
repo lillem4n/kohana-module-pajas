@@ -63,7 +63,9 @@ class Model_User extends Model
 		else                  $this->instance_name = $instance_name;
 
 		if ($user_id)
+		{
 			if ( ! $this->login_by_user_id($user_id)) throw new Exception('Invalid user ID');
+		}
 		elseif (($username) && ($password))
 			$this->login_by_username_and_password($username, $password);
 		elseif ($session)
