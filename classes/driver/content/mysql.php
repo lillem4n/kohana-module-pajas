@@ -323,15 +323,16 @@ class Driver_Content_Mysql extends Driver_Content
 			$sql = substr($sql, 0, strlen($sql) - 1).')';
 		}
 
-		if (@count($tags))
+		if (is_array($tags) && count($tags))
 		{
 			$sql .= ' AND (
 				name IN (
 					SELECT image_name FROM content_images_tags WHERE 1 = 1 AND (';
 			foreach ($tags as $tag => $values)
 			{
+
 				if ($values === TRUE) $sql .= 'tag_id = '.$this->pdo->quote(Tags::get_id_by_name($tag)).' OR ';
-				elseif (@count($values))
+				elseif (is_array($values) && count($values))
 				{
 					$sql .= '(tag_id = '.$this->pdo->quote(Tags::get_id_by_name($tag)).' AND (';
 
@@ -339,6 +340,8 @@ class Driver_Content_Mysql extends Driver_Content
 
 					$sql = substr($sql, 0, strlen($sql) - 4).')) OR ';
 				}
+				else
+					$sql .= '(tag_id = '.$this->pdo->quote(Tags::get_id_by_name($tag)).' AND tag_value = '.$this->pdo->quote($values).') OR ';
 			}
 			$sql = substr($sql, 0, strlen($sql) - 4).')))';
 		}
