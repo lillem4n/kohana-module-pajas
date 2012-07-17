@@ -253,10 +253,12 @@ abstract class Xsltcontroller extends Controller
 	 * @param str $error
 	 * @return boolean
 	 */
-	public function add_error($error)
+	public function add_error($error, $identifier = FALSE)
 	{
 		if ( ! isset($this->xml_content_errors))
 			$this->xml_content_errors = $this->xml_content->appendChild($this->dom->createElement('errors'));
+
+		if ($identifier) $error = array('@id' => $identifier, $error);
 
 		xml::to_XML(array('error' => $error), $this->xml_content_errors);
 		return TRUE;
