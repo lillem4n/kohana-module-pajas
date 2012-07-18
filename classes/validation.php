@@ -31,13 +31,9 @@ class Validation
 	public function filter($filter, $field = FALSE)
 	{
 		if (($field) && isset($this->array[$field]) && is_callable($filter))
-		{
 			$this->array[$field] = call_user_func($filter, $this->array[$field]);
-		}
 		elseif ( ! ($field) && is_callable($filter))
-		{
 			$this->array = $this->sub_filter($filter, $this->array);
-		}
 		else return FALSE;
 
 		return TRUE;
@@ -56,9 +52,8 @@ class Validation
 	public function get($field)
 	{
 		if (isset($this->array[$field]))
-		{
 			return $this->array[$field];
-		}
+
 		return FALSE;
 	}
 
@@ -67,24 +62,18 @@ class Validation
 		if (($field) && isset($this->array[$field]) && is_callable($rule))
 		{
 			if ( ! call_user_func($rule, $this->array[$field], $second_param))
-			{
 				$this->add_error($field, $rule);
-			}
 		}
 		elseif ( ! ($field) && is_callable($rule))
 		{
 			foreach ($this->array as $key => $value)
 			{
 				if ( ! call_user_func($rule, $value, $second_param))
-				{
 					$this->add_error($key, $rule);
-				}
 			}
 		}
 		elseif ( ! isset($this->array[$field]))
-		{
 			$this->add_error($field, $rule);
-		}
 		else return FALSE;
 
 		return TRUE;
