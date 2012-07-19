@@ -32,7 +32,7 @@ class Controller_Media extends Controller
 
 	public function action_img()
 	{
-		$file = $this->request->param('file');
+		$file = $this->request->param('path');
 
 		// Find the file ending
 		$file_parts  = explode('.', $file);
@@ -94,7 +94,6 @@ class Controller_Media extends Controller
 			throw new Http_Exception_404('File not found!');
 		}
 	}
-
 
 	public function action_user_content_image()
 	{
@@ -180,7 +179,7 @@ class Controller_Media extends Controller
 					imagecopyresampled($dst, $src, 0, 0, 0, 0, $_GET['width'], $_GET['height'], $original_width, $original_height);
 					imagepng($dst, $file);
 				}
-/* Somethings fucked up with the colors in GIFs...
+				/* Somethings fucked up with the colors in GIFs...
 				elseif ($file_ending == 'gif')
 				{
 					$src = imagecreatefromgif(Kohana::$config->load('user_content.dir').'/images/'.$filename);
@@ -188,7 +187,7 @@ class Controller_Media extends Controller
 					imagecopyresampled($dst, $src, 0, 0, 0, 0, $calculated_width, $calculated_height, $original_width, $original_height);
 					imagegif($dst, $file);
 				}
-*/
+				*/
 
 			}
 		}
