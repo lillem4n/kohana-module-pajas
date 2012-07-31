@@ -94,30 +94,27 @@ abstract class Driver_User extends Model
 	/**
 	 * Get list of users
 	 *
-	 * @param str or array $q - If a string, used as a search string in
-	 *                          all data fields and username.
-	 *                          If an array, used as associative for searching
-	 *                          in specific data. For example array('fistname' => 'john')
-	 * @param int $start      - Limit the search to start from this row (0 means include
-	 *                          all, 1 will omit the first result)
-	 *                          OPTIONAL!
-	 * @param int $limit      - Limit amount of rows to be returned. FALSE will return
-	 *                          infinite number or rows.
-	 *                          OPTIONAL!
-	 * @param str $order_by   - Field to order by, can be either user_id, username or any data field
-	 *                          OPTIONAL!
-	 * @return array          - array(
-	 *                            array(
-	 *                              'user_id' => 1,
-	 *                              'username' => 'johnsmith'
-	 *                            ),
-	 *                            array(
-	 *                              'user_id' => 2,
-	 *                              'username' => 'adamjohansson'
-	 *                            )
-	 *                          )
+	 * @param str $q             - Used as a search string in
+	 *                             all data fields and username.
+	 * @param int $start         - Limit the search to start from this row (0 means include
+	 *                             all, 1 will omit the first result)
+	 * @param int $limit         - Limit amount of rows to be returned. FALSE will return
+	 *                             infinite number or rows.
+	 * @param str $order_by      - Field to order by, string or array('field' => 'ASC/DESC')
+	 * @param arr $field_search  - Array where key is field name and value is field value (or array of field values)
+	 * @param arr $return_fields - TRUE to return all fields, FALSE for none or array of fields to return
+	 * @return array             - array(
+	 *                               array(
+	 *                                 'id' => 1,
+	 *                                 'username' => 'johnsmith'
+	 *                               ),
+	 *                               array(
+	 *                                 'id' => 2,
+	 *                                 'username' => 'adamjohansson'
+	 *                               )
+	 *                             )
 	 */
-	abstract public function get_users($q, $start = FALSE, $limit = FALSE, $order_by = FALSE);
+	abstract public function get_users($q, $start = FALSE, $limit = FALSE, $order_by = FALSE, $field_search = FALSE, $return_fields = TRUE);
 
 	/**
 	 * Get restricted URIs

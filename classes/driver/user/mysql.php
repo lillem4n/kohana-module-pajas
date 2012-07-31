@@ -115,7 +115,7 @@ class Driver_User_Mysql extends Driver_User
 		return $roles;
 	}
 
-	public function get_users($q = FALSE, $start = 0, $limit = FALSE, $order_by = FALSE, $field_search = FALSE)
+	public function get_users($q = FALSE, $start = 0, $limit = FALSE, $order_by = FALSE, $field_search = FALSE, $return_fields = TRUE)
 	{
 /* Same thing, but with JOIN. Have a bug when there are multiple values of the same data_field... and also isnt faster with current DB structure * /
 		$columns = 'users.id,users.username,';
@@ -154,10 +154,33 @@ class Driver_User_Mysql extends Driver_User
 /**/
 		$data_fields = array();
 		$sql         = 'SELECT users.id,users.username,';
-		foreach ($this->pdo->query('SELECT id, name FROM user_data_fields ORDER BY name;') as $row)
+
+		if ($return_fields != FALSE)
 		{
-			$sql .= '(SELECT GROUP_CONCAT(data SEPARATOR \', \') FROM user_users_data WHERE field_id = '.$row['id'].' AND user_id = users.id ORDER BY data) AS '.Mysql::quote_identifier($row['name']).',';
-			$data_fields[$row['id']] = $row['name'];
+			$fields_sql  = 'SELECT id, name FROM user_data_fields ';
+
+			if (is_array($return_fields))
+			{
+				$fields_sql .= 'WHERE name IN (';
+				foreach ($return_fields as $return_field)
+					$fields_sql .= $this->pdo->quote($return_field).',';
+
+				$fields_sql = substr($fields_sql, 0, strlen($fields_sql) - 1).') ';
+			}
+
+			$fields_sql .= 'ORDER BY name;';
+
+			foreach ($this->pdo->query($fields_sql) as $row)
+			{
+				$sql .= '
+					(
+						SELECT GROUP_CONCAT(data ORDER BY data SEPARATOR \', \')
+						FROM user_users_data
+						WHERE field_id = '.$row['id'].' AND user_id = users.id
+						ORDER BY data
+					) AS '.Mysql::quote_identifier($row['name']).',';
+				$data_fields[$row['id']] = $row['name'];
+			}
 		}
 
 		$sql  = substr($sql, 0, strlen($sql) - 1);
@@ -174,7 +197,15 @@ class Driver_User_Mysql extends Driver_User
 			foreach ($field_search as $field => $search_string)
 			{
 				if ($field_id = array_search($field, $data_fields))
-					$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data LIKE '.$this->pdo->quote('%'.$search_string.'%').') OR';
+				{
+					if (is_array($search_string))
+					{
+						foreach ($search_string as $this_search_string)
+							$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data LIKE '.$this->pdo->quote('%'.$this_search_string.'%').') OR';
+					}
+					else
+						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data LIKE '.$this->pdo->quote('%'.$search_string.'%').') OR';
+				}
 			}
 		}
 

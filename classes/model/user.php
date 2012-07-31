@@ -227,27 +227,29 @@ class Model_User extends Model
 	/**
 	 * Get list of users
 	 *
-	 * @param str $q           - Used as a search string in
-	 *                           all data fields and username.
-	 * @param int $start       - Limit the search to start from this row (0 means include
-	 *                           all, 1 will omit the first result)
-	 * @param int $limit       - Limit amount of rows to be returned. FALSE will return
-	 *                           infinite number or rows.
-	 * @param str $order_by    - Field to order by, string or array('field' => 'ASC/DESC')
-	 * @return array           - array(
-	 *                             array(
-	 *                               'id' => 1,
-	 *                               'username' => 'johnsmith'
-	 *                             ),
-	 *                             array(
-	 *                               'id' => 2,
-	 *                               'username' => 'adamjohansson'
+	 * @param str $q             - Used as a search string in
+	 *                             all data fields and username.
+	 * @param int $start         - Limit the search to start from this row (0 means include
+	 *                             all, 1 will omit the first result)
+	 * @param int $limit         - Limit amount of rows to be returned. FALSE will return
+	 *                             infinite number or rows.
+	 * @param str $order_by      - Field to order by, string or array('field' => 'ASC/DESC')
+	 * @param arr $field_search  - Array where key is field name and value is field value (or array of field values)
+	 * @param arr $return_fields - TRUE to return all fields, FALSE for none or array of fields to return
+	 * @return array             - array(
+	 *                               array(
+	 *                                 'id' => 1,
+	 *                                 'username' => 'johnsmith'
+	 *                               ),
+	 *                               array(
+	 *                                 'id' => 2,
+	 *                                 'username' => 'adamjohansson'
+	 *                               )
 	 *                             )
-	 *                           )
 	 */
-	public static function get_users($q = FALSE, $start = FALSE, $limit = FALSE, $order_by = FALSE, $field_search = FALSE)
+	public static function get_users($q = FALSE, $start = FALSE, $limit = FALSE, $order_by = FALSE, $field_search = FALSE, $return_fields = TRUE)
 	{
-		return self::driver()->get_users($q, $start, $limit, $order_by, $field_search);
+		return self::driver()->get_users($q, $start, $limit, $order_by, $field_search, $return_fields);
 	}
 
 	public function has_access_to($URI)
