@@ -100,6 +100,7 @@ abstract class Xsltcontroller extends Controller
 				'action'        => $this->request->action(),
 				'controller'    => $this->request->controller(),
 				'url_params'    => $_GET,
+				'post_params'   => $_POST,
 			),
 			$this->xml_meta
 		);
