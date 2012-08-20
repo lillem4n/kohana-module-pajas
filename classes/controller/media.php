@@ -30,6 +30,73 @@ class Controller_Media extends Controller
 		}
 	}
 
+	public function action_file()
+	{
+		$file_array = pathinfo($this->request->detect_uri());
+		$file = Kohana::find_file($file_array['dirname'], $file_array['filename'], $file_array['extension']);
+		if ($file_array['extension'] == 'js')
+		{
+			$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+			$this->response->headers('Content-Type', 'application/javascript');
+			echo file_get_contents($file);
+		}
+		elseif ($file_array['extension'] == 'css')
+		{
+			$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+			$this->response->headers('Content-Type', 'text/css');
+			echo file_get_contents($file);
+		}
+		elseif(in_array($file_array['extension'], array('jpg','png','gif','jpeg')))
+		{
+			$mime = File::mime_by_ext($file_array['extension']);
+			if (substr($mime, 0, 5) == 'image')
+			{
+				$this->response->headers('Content-Type', 'content-type: '.$mime.'; encoding='.Kohana::$charset.';');
+
+				// Getting headers sent by the client.
+				$headers = apache_request_headers();
+
+				// Checking if the client is validating his cache and if it is current.
+				if (isset($headers['If-Modified-Since']) && (strtotime($headers['If-Modified-Since']) == filemtime($file)))
+				{
+					// Client's cache IS current, so we just respond '304 Not Modified'.
+					$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+					$this->response->status(304);
+				}
+				else
+				{
+					// Image not cached or cache outdated, we respond '200 OK' and output the image.
+					$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+					$this->response->headers('Content-Length', strval(filesize($file)));
+					$this->response->status(200);
+					echo file_get_contents($file);
+				}
+			}
+		}
+		elseif(in_array($file_array['extension'], array('htm','html')))
+		{
+			$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+			$this->response->headers('Content-Type', 'text/xhtml');
+			$this->response->headers('charset', 'utf8');
+			echo file_get_contents($file);
+			exit;
+		}
+		elseif(in_array($file_array['extension'], array('php')))
+		{
+			$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+			$this->response->headers('Content-Type', 'text/xhtml');
+			$this->response->headers('charset', 'utf8');
+			require_once($file);
+			exit;
+		}
+		else
+		{
+			throw new Http_Exception_404('The file :file not found!', array(':file' => $file_array['filename'].'.'.$file_array['extension']));
+		}
+	}
+
+
+
 	public function action_img()
 	{
 		$file = $this->request->param('file');

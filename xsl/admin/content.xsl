@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:myns="http://my.ns.com">
 
 	<xsl:include href="tpl.default.xsl" />
+
+	<myns:css>
+		<file />
+	</myns:css>
+
+	<myns:js>
+		<file>/js/jquery-1.7.1.min.js</file>
+		<file>/js/tinymce/jquery.tinymce.js</file>
+	</myns:js>
+
+
 
 	<xsl:template name="tabs">
 		<ul class="tabs">
@@ -26,18 +37,24 @@
 			<xsl:call-template name="template">
 				<xsl:with-param name="title" select="'Admin - Content'" />
 				<xsl:with-param name="h1" select="'List content'" />
+				<xsl:with-param name="css_files" select="document('')/*/myns:css" />
+				<xsl:with-param name="js_files" select="document('')/*/myns:js" />
 			</xsl:call-template>
 		</xsl:if>
 		<xsl:if test="/root/meta/action = 'add_content'">
 			<xsl:call-template name="template">
 				<xsl:with-param name="title" select="'Admin - Content'" />
 				<xsl:with-param name="h1" select="'Add content'" />
+				<xsl:with-param name="css_files" select="document('')/*/myns:css" />
+				<xsl:with-param name="js_files" select="document('')/*/myns:js" />
 			</xsl:call-template>
 		</xsl:if>
 		<xsl:if test="/root/meta/action = 'edit_content'">
 			<xsl:call-template name="template">
 				<xsl:with-param name="title" select="'Admin - Content'" />
 				<xsl:with-param name="h1" select="'Edit content'" />
+				<xsl:with-param name="css_files" select="document('')/*/myns:css" />
+				<xsl:with-param name="js_files" select="document('')/*/myns:js" />
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>
@@ -141,6 +158,31 @@
 			</xsl:if>
 
 		</form>
+
+		<script language="javascript">
+			$().ready(function() {
+					$('textarea#content').tinymce({
+						script_url : '/js/tinymce/tiny_mce.js',
+
+						// General options
+						entity_encoding: 'raw',
+						theme : "advanced",
+						skin : "o2k7",
+						skin_variant : "white",
+						plugins : "autolink,lists,pagebreak,style,table,advhr,advlink,inlinepopups,paste,fullscreen,noneditable,nonbreaking,xhtmlxtras",
+
+						content_css : "/css/tinymce.css",
+
+						// Theme options
+						theme_advanced_buttons1 : "bold,italic,underline,strikethrough,|,styleselect,formatselect,fontselect,fontsizeselect",
+						theme_advanced_buttons2 : ",search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,forecolor,backcolor",
+						theme_advanced_toolbar_location : "top",
+						theme_advanced_toolbar_align : "left",
+						theme_advanced_resizing : true,
+
+					});
+			});
+		</script>
 	</xsl:template>
 
 	<!-- Add content - - >

@@ -1,0 +1,5 @@
+/* White */
+.o2k7SkinWhite .mceToolbar .mceToolbarStart span, .o2k7SkinWhite .mceButton, .o2k7SkinWhite .mceSplitButton, .o2k7SkinWhite .mceSeparator, .o2k7SkinWhite .mceSplitButton a.mceOpen, .o2k7SkinWhite .mceListBox a.mceOpen {background-image:url(img/button_bg_white.png)}
+.o2k7SkinWhite td.mceToolbar, .o2k7SkinWhite td.mceStatusbar, .o2k7SkinWhite .mceMenuItemTitle a {background:#f9f9f9}
+.o2k7SkinWhite .mceListBox .mceText {background:#FFF}
+.o2k7SkinWhite .mceExternalToolbar, .o2k7SkinWhite .mceListBox .mceText, .o2k7SkinWhite div.mceMenu, .o2k7SkinWhite table.mceLayout, .o2k7SkinWhite .mceMenuItemTitle a, .o2k7SkinWhite table.mceLayout tr.mceFirst td, .o2k7SkinWhite table.mceLayout, .o2k7SkinWhite .mceMenuItemTitle a, .o2k7SkinWhite table.mceLayout tr.mceLast td, .o2k7SkinWhite .mceIframeContainer {border-color: #bbb}
