@@ -89,6 +89,21 @@ class Xml
 	 *
 	 * The $container can also be a DOMNode, see the examples with return values for more info
 	 * ===============================================================
+	 *
+	 * Combine DOMNode and plain text sub node creation
+	 *
+	 * $DOM_document = new DOMDocument();
+	 * $root_node    = $DOM_document->appendChild($DOM_document->createElement('root'));
+	 *
+	 * xml::to_XML(array('fnupp' => 'dah'), array('sub_node' => $root_node))
+	 * will output:
+	 * <root>
+	 *	 <sub_node>
+	 *		 <fnupp>dah</fnupp>
+	 *	 </sub_node>
+	 * </root>
+	 *
+	 * ===============================================================
 	 * How the $group works
 	 * IMPORTANT! $group requires $container
 	 *
@@ -199,15 +214,8 @@ class Xml
 	 */
 	public static function to_XML($data, $container = NULL, $group = NULL, $attributes = array(), $text_values = array(), $xml_fragments = array(), $alter_code = array())
 	{
-		if (is_string($attributes))
-		{
-			$attributes = array($attributes);
-		}
-
-		if (is_string($text_values))
-		{
-			$text_values = array($text_values);
-		}
+		if (is_string($attributes))  $attributes = array($attributes);
+		if (is_string($text_values)) $text_values = array($text_values);
 
 		// Make sure the data is always an array
 		if (is_string($data))
@@ -227,18 +235,20 @@ class Xml
 		}
 
 		if ($container === NULL)
-		{
 			$DOM_document = new DOMDocument();
-		}
 		elseif (is_string($container))
 		{
 			$DOM_document  = new DOMDocument();
 			$alt_container = $DOM_document->appendChild($DOM_document->createElement($container));
 		}
-		else
+		elseif (is_array($container))
 		{
-			$DOM_document = $container->ownerDocument;
+			$parent_container = reset($container);
+			$DOM_document     = $parent_container->ownerDocument;
+			$alt_container    = $parent_container->appendChild($DOM_document->createElement(key($container)));
 		}
+		else
+			$DOM_document = $container->ownerDocument;
 
 		foreach ($data as $key => $value)
 		{

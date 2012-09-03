@@ -158,58 +158,99 @@ class Driver_Content_Mysql extends Driver_Content
 		return $contents;
 	}
 
-	public function get_contents_by_tags($tags)
+	public function get_contents_by_tags($tags = FALSE, $order_by = FALSE, $limit = FALSE, $offset = 0)
 	{
+
+		// Begin with fetching the contents
+		$contents = array();
+
 		$sql = '
-			SELECT
-				content.id,
-				content.content,
-				(
-					SELECT name FROM tags WHERE tags.id = content_tags.tag_id
-				) AS tag,
-				content_tags.tag_value
-			FROM
-				content
-				LEFT JOIN content_tags ON content_tags.content_id = content.id
-			WHERE';
+			SELECT * FROM (
+				SELECT id, content
+				FROM
+					content
+					LEFT JOIN content_tags ON content_tags.content_id = content.id
+				WHERE';
 
-		foreach ($tags as $tag_name => $tag_values)
+		if ( ! empty($tags))
 		{
-			if ( ! is_array($tag_values)) $tag_values = array($tag_values);
-
-			foreach ($tag_values as $tag_value)
+			$sql .= ' id IN (SELECT content_id FROM content_tags WHERE';
+			$counter = 0;
+			foreach ($tags as $tag_name => $tag_values)
 			{
-				$sql .= ' content.id IN (
-										SELECT content_id
-										FROM content_tags
-										WHERE tag_id = '.Tags::get_id_by_name($tag_name);
 
-				if ($tag_value !== NULL) $sql .= ' AND tag_value = '.$this->pdo->quote($tag_value);
+				if (is_numeric($tag_name))
+				{
+					$tag_name   = $tag_values;
+					$tag_values = FALSE;
+				}
 
-				$sql .= ') AND';
+				if ($counter != 0) $sql .= ' OR';
+
+				if ($tag_values == FALSE)
+					$sql .= ' tag_id = '.Tags::get_id_by_name($tag_name);
+				else
+				{
+					if ( ! is_array($tag_values))
+						$tag_values = array($tag_values);
+
+					$sql .= ' (tag_id = '.Tags::get_id_by_name($tag_name).' AND (';
+					foreach ($tag_values as $tag_value_nr => $tag_value)
+					{
+						if ($tag_value_nr != 0) $sql .= ' OR';
+						$sql .= ' tag_value = '.$this->pdo->quote($tag_value);
+					}
+					$sql .= ')';
+				}
+
+				$counter++;
 			}
-
+			$sql .= ')';
 		}
 
-		$sql = substr($sql, 0, strlen($sql) - 4);
+		$sql .= ') AS tmp GROUP BY id'; // We do this weird subselect to make a temporary table so we can order by before group by
 
-		$contents = array();
+		if     ($order_by == 'content') $sql .= ' ORDER BY content';
+		elseif ($order_by == 'id')      $sql .= ' ORDER BY id';
+		elseif (is_array($order_by))
+		{
+			$sql .= ' ORDER BY ';
+			reset($order_by);
+			$first_order_tag_name = key($order_by);
+			foreach ($order_by as $order_tag_name => $asc_desc)
+			{
+				if ($first_order_tag_name != $order_tag_name) $sql .= ',';
+				if (strtoupper($asc_desc) == 'ASC') $asc_desc = 'ASC';
+				else                                $asc_desc = 'DESC';
+				$sql .= '(SELECT tag_value FROM content_tags WHERE tag_id = '.Tags::get_id_by_name($order_tag_name).' AND content_id = id) '.$asc_desc;
+			}
+		}
+
+		if ($offset && $limit) $sql .= ' LIMIT '.$offset.','.$limit;
+		elseif ($limit)        $sql .= ' LIMIT '.$limit;
+
 		foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)
 		{
-			if ( ! isset($contents[$row['id']]))
-			{
-				$contents[$row['id']] = array(
-					'id'      => $row['id'],
-					'content' => $row['content'],
-					'tags'    => array(),
-				);
-			}
+			$contents[$row['id']] = array(
+				'id'      => $row['id'],
+				'content' => $row['content'],
+				'tags'    => array(),
+			);
+		}
 
-			if ( ! isset($contents[$row['id']]['tags'][$row['tag']]))
-			{
-				$contents[$row['id']]['tags'][$row['tag']] = array();
-			}
-			$contents[$row['id']]['tags'][$row['tag']][] = $row['tag_value'];
+		// Fetch tag data
+		$sql = '
+			SELECT content_id, tag_id, tag_value
+			FROM content_tags
+			WHERE content_id IN ('.implode(',', array_keys($contents)).')';
+
+		foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)
+		{
+			if ( ! isset($contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])]))
+				$contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])] = array();
+
+			if ($row['tag_value'] !== NULL)
+				$contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])][] = $row['tag_value'];
 		}
 
 		return $contents;

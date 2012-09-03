@@ -147,6 +147,9 @@ class Content_Content extends Model
 	 * Get contents by tags
 	 *
 	 * @param $tags - tag name as key, tag values as values
+	 * @param $order_by - 'content', 'id' or array of tag names (tag name as key, order (ASC/DESC) as value)
+	 * @param $limit - integer
+	 * @param $offset - integer (defaults to 0)
 	 * @return array of content ids - ex array(
 	 *                      array(
 	 *                        id      => 1,
@@ -168,9 +171,9 @@ class Content_Content extends Model
 	 *                      ),
 	 *                    )
 	 */
-	public static function get_contents_by_tags($tags)
+	public static function get_contents_by_tags($tags = FALSE, $order_by = FALSE, $limit = FALSE, $offset = 0)
 	{
-		return self::driver()->get_contents_by_tags($tags);
+		return self::driver()->get_contents_by_tags($tags, $order_by, $limit, $offset);
 	}
 
 	/**
@@ -206,6 +209,36 @@ class Content_Content extends Model
 	public static function get_contents_by_tag_value($tag_value)
 	{
 		return self::driver()->get_contents_by_tag_value($tag_value);
+	}
+
+	public static function get_contents_for_xml($tags = FALSE, $order_by = FALSE, $limit = FALSE, $offset = 0)
+	{
+		$contents = self::driver()->get_contents_by_tags($tags, $order_by, $limit, $offset);
+
+		foreach ($contents as $nr => $content)
+		{
+			$counter = 0;
+			foreach ($content['tags'] as $tag_name => $tag_values)
+			{
+				foreach ($tag_values as $tag_value)
+					$content['tags'][$counter.$tag_name] = array(
+						'@id'    => Tags::get_id_by_name($tag_name),
+						'$value' => $tag_value
+					);
+
+				unset($content['tags'][$tag_name]);
+				if (count($tag_values) == 0) $content['tags'][$tag_name] = array('@id' => Tags::get_id_by_name($tag_name));
+				$counter++;
+			}
+
+			$content['@id'] = $content['id'];
+			unset($content['id']);
+
+			$contents[$nr.'content'] = $content;
+			unset($contents[$nr]);
+		}
+
+		return $contents;
 	}
 
 	public function get_tags()

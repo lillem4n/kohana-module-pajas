@@ -163,6 +163,9 @@ abstract class Driver_Content extends Model
 	 * Get contents by tags
 	 *
 	 * @param $tags - tag name as key, tag values as values
+	 * @param $order_by - 'content', 'id' or array of tag names (tag name as key, order (ASC/DESC) as value)
+	 * @param $limit - integer
+	 * @param $offset - integer (defaults to 0)
 	 * @return array of content ids - ex array(
 	 *                      array(
 	 *                        id      => 1,
@@ -184,7 +187,7 @@ abstract class Driver_Content extends Model
 	 *                      ),
 	 *                    )
 	 */
-	abstract public function get_contents_by_tags($tags);
+	abstract public function get_contents_by_tags($tags = FALSE, $order_by = FALSE, $limit = FALSE, $offset = 0);
 
 	/**
 	 * Get contents by tag id
