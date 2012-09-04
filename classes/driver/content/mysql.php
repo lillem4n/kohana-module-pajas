@@ -174,6 +174,8 @@ class Driver_Content_Mysql extends Driver_Content
 
 		if ( ! empty($tags))
 		{
+			if (is_string($tags)) $tags = array($tags);
+
 			$sql .= ' id IN (SELECT content_id FROM content_tags WHERE';
 			$counter = 0;
 			foreach ($tags as $tag_name => $tag_values)
@@ -239,18 +241,21 @@ class Driver_Content_Mysql extends Driver_Content
 		}
 
 		// Fetch tag data
-		$sql = '
-			SELECT content_id, tag_id, tag_value
-			FROM content_tags
-			WHERE content_id IN ('.implode(',', array_keys($contents)).')';
-
-		foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)
+		if (count($contents))
 		{
-			if ( ! isset($contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])]))
-				$contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])] = array();
+			$sql = '
+				SELECT content_id, tag_id, tag_value
+				FROM content_tags
+				WHERE content_id IN ('.implode(',', array_keys($contents)).')';
 
-			if ($row['tag_value'] !== NULL)
-				$contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])][] = $row['tag_value'];
+			foreach ($this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC) as $row)
+			{
+				if ( ! isset($contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])]))
+					$contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])] = array();
+
+				if ($row['tag_value'] !== NULL)
+					$contents[$row['content_id']]['tags'][Tags::get_name_by_id($row['tag_id'])][] = $row['tag_value'];
+			}
 		}
 
 		return $contents;
@@ -338,6 +343,61 @@ class Driver_Content_Mysql extends Driver_Content
 		}
 
 		return $contents;
+	}
+
+	public function get_contents_count_by_tags($tags = FALSE, $limit = FALSE, $offset = 0)
+	{
+
+		// Begin with fetching the contents
+		$contents = array();
+
+		$sql = '
+			SELECT count(id)
+			FROM
+				content
+				LEFT JOIN content_tags ON content_tags.content_id = content.id
+			WHERE';
+
+		if ( ! empty($tags))
+		{
+			if (is_string($tags)) $tags = array($tags);
+
+			$counter = 0;
+			foreach ($tags as $tag_name => $tag_values)
+			{
+
+				if (is_numeric($tag_name))
+				{
+					$tag_name   = $tag_values;
+					$tag_values = FALSE;
+				}
+
+				if ($counter != 0) $sql .= ' OR';
+
+				if ($tag_values == FALSE)
+					$sql .= ' tag_id = '.Tags::get_id_by_name($tag_name);
+				else
+				{
+					if ( ! is_array($tag_values))
+						$tag_values = array($tag_values);
+
+					$sql .= ' (tag_id = '.Tags::get_id_by_name($tag_name).' AND (';
+					foreach ($tag_values as $tag_value_nr => $tag_value)
+					{
+						if ($tag_value_nr != 0) $sql .= ' OR';
+						$sql .= ' tag_value = '.$this->pdo->quote($tag_value);
+					}
+					$sql .= ')';
+				}
+
+				$counter++;
+			}
+		}
+
+		if ($offset && $limit) $sql .= ' LIMIT '.$offset.','.$limit;
+		elseif ($limit)        $sql .= ' LIMIT '.$limit;
+
+		return $this->pdo->query($sql)->fetchColumn();
 	}
 
 	public function get_images($names = NULL, $tags = array(), $names_only = FALSE)

@@ -211,6 +211,19 @@ class Content_Content extends Model
 		return self::driver()->get_contents_by_tag_value($tag_value);
 	}
 
+	/**
+	 * Get contents by tags
+	 *
+	 * @param $tags - tag name as key, tag values as values
+	 * @param $limit - integer
+	 * @param $offset - integer (defaults to 0)
+	 * @return int amount of contents found
+	 */
+	public static function get_contents_count_by_tags($tags = FALSE, $limit = FALSE, $offset = 0)
+	{
+		return self::driver()->get_contents_count_by_tags($tags, $limit, $offset);
+	}
+
 	public static function get_contents_for_xml($tags = FALSE, $order_by = FALSE, $limit = FALSE, $offset = 0)
 	{
 		$contents = self::driver()->get_contents_by_tags($tags, $order_by, $limit, $offset);
@@ -232,7 +245,7 @@ class Content_Content extends Model
 			}
 
 			$content['@id']     = $content['id'];
-			$content['content'] = xml::to_array($content['content']);
+			$content['content'] = xml::to_array(Markdown::transform($content['content']));
 			unset($content['id']);
 
 			$contents[$nr.'content'] = $content;

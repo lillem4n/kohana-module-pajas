@@ -217,6 +217,16 @@ abstract class Driver_Content extends Model
 	abstract public function get_contents_by_tag_id($tag_id);
 
 	/**
+	 * Get contents by tags
+	 *
+	 * @param $tags - tag name as key, tag values as values
+	 * @param $limit - integer
+	 * @param $offset - integer (defaults to 0)
+	 * @return int amount of contents found
+	 */
+	abstract public function get_contents_count_by_tags($tags = FALSE, $limit = FALSE, $offset = 0);
+
+	/**
 	 * Get images
 	 *
 	 * @param str or array  $names      - Fetch specific images based on name
