@@ -6,6 +6,89 @@
  */
 class Xml
 {
+
+	/**
+	 * Convert an object to an array
+	 *
+	 * @param object $object The object to convert
+	 * @return array
+	 */
+	public static function object_to_array($object)
+	{
+		if ( ! is_object($object) && ! is_array($object))
+			return $object;
+		if (is_object($object))
+			$object = get_object_vars($object);
+
+		return array_map(array(__CLASS__, __FUNCTION__), $object);
+	}
+
+	/**
+	 * Convert XML to array
+	 *
+	 * @param $XML - DOMDocument or string
+	 * @return arr
+	 */
+	public static function to_array($XML)
+	{
+		if (is_string($XML))
+		{
+			$XML_string = '<x>'.$XML.'</x>';
+			$XML = new DOMDocument;
+			$XML->loadXML($XML_string);
+
+			$array = array();
+
+			// Tags
+			foreach ($XML->documentElement->childNodes as $nr => $xml_child)
+			{
+				if (isset($xml_child->tagName))
+					$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
+				else
+					$array[$nr] = $xml_child->nodeValue;
+			}
+		}
+		else
+		{
+			$root  = $XML->documentElement->tagName;
+			$array = array($root => array());
+
+			// Attributes
+			foreach ($XML->documentElement->attributes as $attribute)
+				$array[$root]['@'.$attribute->nodeName] = $attribute->nodeValue;
+
+			// Tags
+			foreach ($XML->documentElement->childNodes as $nr => $xml_child)
+			{
+				if (isset($xml_child->tagName))
+					$array[$root][$nr.$xml_child->tagName] = self::_to_array($xml_child);
+				else
+					$array[$nr] = $xml_child->nodeValue;
+			}
+		}
+
+		return $array;
+	}
+	public static function _to_array($DOMNode)
+	{
+		$array = array();
+
+		// Attributes
+		foreach ($DOMNode->attributes as $attribute)
+			$array['@'.$attribute->nodeName] = $attribute->nodeValue;
+
+		foreach ($DOMNode->childNodes as $nr => $xml_child)
+		{
+			if (isset($xml_child->tagName))
+				$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
+			else
+				$array[$nr] = $xml_child->nodeValue;
+		}
+
+		return $array;
+	}
+
+
 	/**
 	 * Creates a DOMNode or DOMDocument of your array, object or SQL
 	 *
@@ -532,22 +615,4 @@ class Xml
 		return TRUE;
 	}
 
-	/**
-	* Convert an object to an array
-	*
-	* @param object $object The object to convert
-	* @return array
-	*/
-	public static function object_to_array($object)
-	{
-		if( ! is_object($object) && ! is_array($object))
-		{
-			return $object;
-		}
-		if (is_object($object))
-		{
-			$object = get_object_vars($object);
-		}
-		return array_map(array(__CLASS__, __FUNCTION__), $object);
-	}
 }

@@ -231,7 +231,8 @@ class Content_Content extends Model
 				$counter++;
 			}
 
-			$content['@id'] = $content['id'];
+			$content['@id']     = $content['id'];
+			$content['content'] = xml::to_array($content['content']);
 			unset($content['id']);
 
 			$contents[$nr.'content'] = $content;
