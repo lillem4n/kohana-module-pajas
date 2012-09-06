@@ -62,6 +62,13 @@ return array(
 		'href'        => 'images',
 		'position'    => 3,
   ),
+  'blog' => array(
+    'name'        => 'Blog',
+    '@category'   => 'CMS',
+    'description' => 'Blog posts',
+    'href'        => 'blog',
+    'position'    => 4,
+  ),
 /*  'tags' => array(
     'name'        => 'Tags',
     '@category'   => 'CMS',
