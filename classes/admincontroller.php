@@ -18,6 +18,9 @@ abstract class Admincontroller extends Xsltcontroller
 	{
 		parent::__construct($request, $response);
 
+		if ($this->xslt_stylesheet == FALSE)
+			$this->xslt_stylesheet = 'admin/'.$this->request->controller();
+
 		$this->acl_redirect_url = '/admin/login';
 
 		if (class_exists('User'))

@@ -116,8 +116,6 @@ abstract class Xsltcontroller extends Controller
 
 			$_SESSION['messages'] = array();
 		}
-
-		if ($this->xslt_stylesheet == FALSE) $this->xslt_stylesheet = $this->request->controller();
 	}
 
 	public function before() {}
@@ -138,6 +136,8 @@ abstract class Xsltcontroller extends Controller
 			if ($this->acl_redirect_url) $this->redirect($this->acl_redirect_url);
 			else                         throw new HTTP_Exception_403('403 Forbidden');
 		}
+
+		if ($this->xslt_stylesheet == FALSE) $this->xslt_stylesheet = $this->request->controller();
 
 		if ($this->transform === TRUE || $this->transform === FALSE || $this->transform == 'auto')
 		{
