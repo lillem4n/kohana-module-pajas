@@ -4,7 +4,7 @@ class Controller_Admin_Blog extends Admincontroller {
 
 	public function action_index()
 	{
-		$tags           = array('blogpost');//, 'published');
+		$tags           = array('blogpost');
 		$order_by       = array('datetime' => 'DESC');
 		$posts_per_page = 10000;
 
@@ -40,8 +40,9 @@ class Controller_Admin_Blog extends Admincontroller {
 
 				if ( ! $_GET['id'])
 				{
-					$content = Content::new_content($post_data['content'], $tags);
+					$content_id = Content::new_content($post_data['content'], $tags);
 					$this->add_message('Added blogpost');
+					$this->redirect('/admin/blog/blogpost?id='.$content_id);
 				}
 				else
 				{

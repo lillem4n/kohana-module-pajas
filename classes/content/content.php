@@ -257,13 +257,16 @@ class Content_Content extends Model
 
 	public function get_tag($tag_name)
 	{
-		foreach ($this->get_tags() as $tag_id => $tag_data)
+		if ($tags = $this->get_tags())
 		{
-			if ($tag_data['name'] == $tag_name)
+			foreach ($tags as $tag_id => $tag_data)
 			{
-				if (count($tag_data['values']) == 0)     return TRUE;
-				elseif (count($tag_data['values']) == 1) return reset($tag_data['values']);
-				else                                     return $tag_data['values'];
+				if ($tag_data['name'] == $tag_name)
+				{
+					if (count($tag_data['values']) == 0)     return TRUE;
+					elseif (count($tag_data['values']) == 1) return reset($tag_data['values']);
+					else                                     return $tag_data['values'];
+				}
 			}
 		}
 

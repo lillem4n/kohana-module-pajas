@@ -176,38 +176,31 @@ class Driver_Content_Mysql extends Driver_Content
 		{
 			if (is_string($tags)) $tags = array($tags);
 
-			$sql .= ' id IN (SELECT content_id FROM content_tags WHERE';
 			$counter = 0;
 			foreach ($tags as $tag_name => $tag_values)
 			{
-
 				if (is_numeric($tag_name))
 				{
 					$tag_name   = $tag_values;
 					$tag_values = FALSE;
 				}
 
-				if ($counter != 0) $sql .= ' OR';
+				if ($counter != 0) $sql .= ' AND';
 
 				if ($tag_values == FALSE)
-					$sql .= ' tag_id = '.Tags::get_id_by_name($tag_name);
+				{
+					$sql .= ' id IN (SELECT content_id FROM content_tags WHERE tag_id = '.Tags::get_id_by_name($tag_name).')';
+					$counter++;
+				}
 				else
 				{
-					if ( ! is_array($tag_values))
-						$tag_values = array($tag_values);
-
-					$sql .= ' (tag_id = '.Tags::get_id_by_name($tag_name).' AND (';
 					foreach ($tag_values as $tag_value_nr => $tag_value)
 					{
-						if ($tag_value_nr != 0) $sql .= ' OR';
-						$sql .= ' tag_value = '.$this->pdo->quote($tag_value);
+						$sql .= ' id IN (SELECT content_id FROM content_tags WHERE tag_id = '.Tags::get_id_by_name($tag_name).' AND tag_value = '.$this->pdo->quote($tag_value).')';
+						$counter++;
 					}
-					$sql .= ')';
 				}
-
-				$counter++;
 			}
-			$sql .= ')';
 		}
 
 		$sql .= ') AS tmp GROUP BY id'; // We do this weird subselect to make a temporary table so we can order by before group by
