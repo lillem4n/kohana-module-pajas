@@ -36,7 +36,10 @@ class Controller_Admin_Blog extends Admincontroller {
 				$post_data = $post->as_array();
 				$tags      = array('title' => $post_data['title'], 'blogpost' => NULL);
 				if (isset($post_data['datetime']) && $post_data['datetime'] != '')
+				{
 					$tags['datetime'] = date('Y-m-d H:i:s', strtotime($post_data['datetime']));
+					$tags['slug']     = date('Y/m/d/', strtotime($post_data['datetime'])).URL::title($tags['title']);
+				}
 
 				if ( ! $_GET['id'])
 				{

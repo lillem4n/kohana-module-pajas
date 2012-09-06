@@ -194,6 +194,8 @@ class Driver_Content_Mysql extends Driver_Content
 				}
 				else
 				{
+					if (is_string($tag_values)) $tag_values = array($tag_values);
+
 					foreach ($tag_values as $tag_value_nr => $tag_value)
 					{
 						$sql .= ' id IN (SELECT content_id FROM content_tags WHERE tag_id = '.Tags::get_id_by_name($tag_name).' AND tag_value = '.$this->pdo->quote($tag_value).')';

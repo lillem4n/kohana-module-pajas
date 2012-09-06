@@ -62,9 +62,9 @@ if (count($URIs))
 			));
 }
 
-// Single content page
-Route::set('singlecontent', 'content/<id>', array('id' => '\d+'))
+// Set blog routes
+Route::set('blogpost', 'blog/<slug>', array('slug' => '.*'))
 		->defaults(array(
-			'controller' => 'generic',
-			'action'     => 'singlecontent',
+			'controller' => 'blog',
+			'action'     => 'blogpost',
 		));

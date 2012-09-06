@@ -25,4 +25,9 @@ class Controller_Blog extends Xsltcontroller
 		xml::to_XML(Content::get_contents_for_xml($tags, $order_by, $limit, $offset), array('blogposts' => $this->xml_content));
 	}
 
+	public function action_blogpost()
+	{
+		xml::to_XML(Content::get_contents_for_xml(array('slug' => $this->request->param('slug'))), array('blogposts' => $this->xml_content));
+	}
+
 }
