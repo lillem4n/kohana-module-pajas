@@ -33,7 +33,7 @@ class Controller_Media extends Controller
 	public function action_fonts()
 	{
 		$path                   = $this->request->param('path');
-		$path_info              = path_info($path);
+		$path_info              = pathinfo($path);
 		$path_info['extension'] = strtolower($path_info['extension']);
 
 		$file = Kohana::find_file('fonts', substr($path, 0, strlen($path) - (strlen($path_info['extension']) + 1)), $path_info['extension']);
@@ -54,7 +54,7 @@ class Controller_Media extends Controller
 	public function action_img()
 	{
 		$path      = $this->request->param('path');
-		$path_info = path_info($path);
+		$path_info = pathinfo($path);
 
 		$file = Kohana::find_file('img', substr($path, 0, strlen($path) - (strlen($path_info['extension']) + 1)), $path_info['extension']);
 		if ($file)
