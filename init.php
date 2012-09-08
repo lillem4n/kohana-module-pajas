@@ -16,6 +16,7 @@ if (Kohana::$environment === Kohana::DEVELOPMENT && ! is_dir(Kohana::$config->lo
 	}
 }
 
+// Admin routes
 Route::set('admin', 'admin/<controller>(/<action>(/<options>))',
 	array(
 		'action' => '[a-zA-Z0-9_-]+',
@@ -27,6 +28,7 @@ Route::set('admin', 'admin/<controller>(/<action>(/<options>))',
 		'action'     => 'index',
 	));
 
+// Media routes
 foreach (Kohana::$config->load('media') as $name => $URL)
 {
 	Route::set($name, $URL,
