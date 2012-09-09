@@ -44,7 +44,7 @@ class Controller_Media extends Controller
 			if     ($path_info['extension'] == 'eot')  $this->response->headers('Content-Type', 'application/vnd.ms-fontobject');
 			elseif ($path_info['extension'] == 'svg')  $this->response->headers('Content-Type', 'image/svg+xml');
 			elseif ($path_info['extension'] == 'ttf')  $this->response->headers('Content-Type', 'font/ttf');
-			elseif ($path_info['extension'] == 'woff') $this->response->headers('Content-Type', 'application/font-woff');
+			elseif ($path_info['extension'] == 'woff') $this->response->headers('Content-Type', 'application/x-font-woff');
 
 			echo file_get_contents($file);
 		}
