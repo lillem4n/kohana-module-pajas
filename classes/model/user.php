@@ -274,14 +274,16 @@ class Model_User extends Model
 		elseif ($restricted && ! $this->logged_in()) return FALSE;
 		elseif ($restricted && $this->logged_in())
 		{
-			$roles = self::get_roles();
+			$roles    = self::get_roles();
+			$base_url = substr(URL::base(), 1);
 			foreach ($this->get_user_data('role') as $role)
 			{
 				if (isset($roles[$role]))
 				{
 					foreach ($roles[$role] as $got_access_to)
 					{
-						$exact_match = (bool) (substr($got_access_to, strlen($got_access_to) - 1) != '*');
+						$got_access_to = $base_url.$got_access_to;
+						$exact_match   = (bool) (substr($got_access_to, strlen($got_access_to) - 1) != '*');
 
 						if (
 							($exact_match == TRUE && $request_URI == $got_access_to) ||
@@ -289,10 +291,7 @@ class Model_User extends Model
 								$exact_match == FALSE &&
 								substr($request_URI, 0, strlen($got_access_to) - 1) == substr($got_access_to, 0, strlen($got_access_to) - 1)
 							)
-						)
-						{
-							return TRUE;
-						}
+						) return TRUE;
 					}
 				}
 			}
