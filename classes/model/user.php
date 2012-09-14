@@ -258,7 +258,8 @@ class Model_User extends Model
 		$restricted  = FALSE;
 		foreach (self::get_restricted_URIs() as $restricted_URI)
 		{
-			$exact_match = (bool) (substr($restricted_URI, strlen($restricted_URI) - 1) != '*');
+			$restricted_URI = substr(URL::base(), 1).$restricted_URI;
+			$exact_match    = (bool) (substr($restricted_URI, strlen($restricted_URI) - 1) != '*');
 
 			if (
 				($exact_match == TRUE && $restricted_URI == $request_URI) ||
