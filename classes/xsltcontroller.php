@@ -91,6 +91,20 @@ abstract class Xsltcontroller extends Controller
 		// Create the meta node
 		$this->xml_meta = $this->xml->appendChild($this->dom->createElement('meta'));
 
+		// Format URL params
+		$url_params = $_GET;
+		foreach ($url_params as $key => $url_param)
+		{
+			if (is_array($url_param))
+			{
+				foreach ($url_param as $nr => $data)
+				{
+					$url_params[$nr.$key] = $data;
+					unset($url_params[$key]);
+				}
+			}
+		}
+
 		xml::to_XML(
 			array(
 				'protocol'      => (isset($_SERVER['HTTPS'])) ? 'https' : 'http',
@@ -99,7 +113,7 @@ abstract class Xsltcontroller extends Controller
 				'path'          => $this->request->uri(),
 				'action'        => $this->request->action(),
 				'controller'    => $this->request->controller(),
-				'url_params'    => $_GET,
+				'url_params'    => $url_params,
 				'post_params'   => $_POST,
 			),
 			$this->xml_meta
