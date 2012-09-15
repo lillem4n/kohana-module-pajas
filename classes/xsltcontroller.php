@@ -180,45 +180,7 @@ abstract class Xsltcontroller extends Controller
 			if ($this->transform === TRUE || ($this->transform == 'auto' && $user_agent_trigger == TRUE))
 			{
 				$xslt = new DOMDocument;
-				if (file_exists(getenv('DOCUMENT_ROOT').$this->xslt_path.$this->xslt_stylesheet.'.xsl'))
-				{
-					// If the stylesheet exists in the specified path, load it directly
-					$xslt->load(getenv('DOCUMENT_ROOT').$this->xslt_path.$this->xslt_stylesheet.'.xsl');
-				}
-				else
-				{
-					// Else make a search for it
-
-					// We need to load all theme modules
-					foreach (scandir(MODPATH) as $modulePath)
-					{
-						if (substr($modulePath, 0, 5) == 'theme')
-						{
-							Kohana::modules(array($modulePath => MODPATH.$modulePath) + Kohana::modules());
-						}
-					}
-
-					$xslt->load(Kohana::find_file(
-						rtrim(preg_replace('/^'.str_replace('/', '\\/', Kohana::$base_url).'/', '', $this->xslt_path), '/'),
-						$this->xslt_stylesheet,
-						'xsl'
-					));
-				}
-
-				// We need to update paths to included XSL elements
-				$XPath         = new DOMXPath($xslt);
-				$include_nodes = $XPath->query('//xsl:include');
-
-				foreach ($include_nodes as $include_node)
-				{
-					foreach ($include_node->attributes as $attribute_node)
-					{
-						$new_filename = Kohana::find_file(rtrim(preg_replace('/^'.str_replace('/', '\\/', Kohana::$base_url).'/', '', $this->xslt_path.$extra_xslt_path), '/'), substr($attribute_node->nodeValue, 0, strlen($attribute_node->nodeValue) - 4), 'xsl');
-						$include_node->removeAttribute('href');
-						$include_node->setAttribute('href', $new_filename);
-					}
-				}
-				// Done updating paths
+				$xslt->load('http://'.$_SERVER['HTTP_HOST'].$this->xslt_path.$this->xslt_stylesheet.'.xsl');
 
 				$proc = new xsltprocessor();
 				$proc->importStyleSheet($xslt);
