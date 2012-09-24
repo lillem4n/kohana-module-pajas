@@ -33,6 +33,10 @@ class Xml
 	{
 		if (is_string($XML))
 		{
+			// Strip XML declaration if any
+			if (substr($XML, 0, 5) == '<?xml')
+				$XML = trim(substr($XML, strpos($XML, '?>') + 2), "\n");
+
 			$XML_string = '<x>'.$XML.'</x>';
 			$XML = new DOMDocument;
 			$XML->loadXML($XML_string);
@@ -43,7 +47,12 @@ class Xml
 			foreach ($XML->documentElement->childNodes as $nr => $xml_child)
 			{
 				if (isset($xml_child->tagName))
-					$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
+				{
+					if (isset($array[$xml_child->tagName]))
+						$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
+					else
+						$array[$xml_child->tagName] = self::_to_array($xml_child);
+				}
 				else
 					$array[$nr] = $xml_child->nodeValue;
 			}
@@ -61,7 +70,10 @@ class Xml
 			foreach ($XML->documentElement->childNodes as $nr => $xml_child)
 			{
 				if (isset($xml_child->tagName))
-					$array[$root][$nr.$xml_child->tagName] = self::_to_array($xml_child);
+					if (isset($array[$root][$xml_child->tagName]))
+						$array[$root][$nr.$xml_child->tagName] = self::_to_array($xml_child);
+					else
+						$array[$root][$xml_child->tagName] = self::_to_array($xml_child);
 				else
 					$array[$nr] = $xml_child->nodeValue;
 			}
