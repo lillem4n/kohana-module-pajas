@@ -53,6 +53,8 @@ class Xml
 					else
 						$array[$xml_child->tagName] = self::_to_array($xml_child);
 				}
+				elseif ($XML->documentElement->childNodes->lenth == 1)
+					$array = $xml_child->nodeValue;
 				else
 					$array[$nr] = $xml_child->nodeValue;
 			}
@@ -74,6 +76,8 @@ class Xml
 						$array[$root][$nr.$xml_child->tagName] = self::_to_array($xml_child);
 					else
 						$array[$root][$xml_child->tagName] = self::_to_array($xml_child);
+				elseif ($XML->documentElement->childNodes->lenth == 1)
+					$array = $xml_child->nodeValue;
 				else
 					$array[$nr] = $xml_child->nodeValue;
 			}
@@ -96,6 +100,8 @@ class Xml
 					$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
 				else
 					$array[$xml_child->tagName] = self::_to_array($xml_child);
+			elseif ($DOMNode->childNodes->length == 1)
+				$array = $xml_child->nodeValue;
 			else
 				$array[$nr] = $xml_child->nodeValue;
 		}
