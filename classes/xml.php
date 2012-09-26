@@ -92,7 +92,10 @@ class Xml
 		foreach ($DOMNode->childNodes as $nr => $xml_child)
 		{
 			if (isset($xml_child->tagName))
-				$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
+				if (isset($array[$xml_child->tagName]))
+					$array[$nr.$xml_child->tagName] = self::_to_array($xml_child);
+				else
+					$array[$xml_child->tagName] = self::_to_array($xml_child);
 			else
 				$array[$nr] = $xml_child->nodeValue;
 		}
