@@ -107,14 +107,14 @@ abstract class Xsltcontroller extends Controller
 
 		xml::to_XML(
 			array(
-				'protocol'      => (isset($_SERVER['HTTPS'])) ? 'https' : 'http',
-				'domain'        => $_SERVER['SERVER_NAME'],
-				'base'					=> URL::base(),
-				'path'          => $this->request->uri(),
-				'action'        => $this->request->action(),
-				'controller'    => $this->request->controller(),
-				'url_params'    => $url_params,
-				'post_params'   => $_POST,
+				'protocol'    => (isset($_SERVER['HTTPS'])) ? 'https' : 'http',
+				'domain'      => $_SERVER['SERVER_NAME'],
+				'base'        => URL::base(),
+				'path'        => $this->request->uri(),
+				'action'      => $this->request->action(),
+				'controller'  => $this->request->controller(),
+				'url_params'  => $url_params,
+				'post_params' => $_POST,
 			),
 			$this->xml_meta
 		);
