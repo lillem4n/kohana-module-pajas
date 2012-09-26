@@ -174,19 +174,26 @@ class Model_User extends Model
 	 * Get user data
 	 *
 	 * @param str $field - if only a single data field is wanted
+	 * @param bol $return_as_string - Will return the first match as string, only in combination with $field
 	 * @return
 	 *         array - example: array('firstname' => array('John'), 'lastname' => array('Smith'), 'email' => array('one@larvit.se', 'tow@larvit.se'))
 	 *         or
 	 *         array - example: array('one@larvit.se', 'tow@larvit.se')
 	 */
-	public function get_user_data($field = false)
+	public function get_user_data($field = FALSE, $return_as_string = FALSE)
 	{
 	  if (is_array($this->user_data))
 	  {
 	  	if ($field)
 	  	{
 	  		if (isset($this->user_data[$field]))
-	  			return $this->user_data[$field];
+	  		{
+	  			if ($return_as_string)
+	  			{
+	  				return reset($this->user_data[$field]);
+	  			}
+	  			else return $this->user_data[$field];
+	  		}
 	  	}
 	  	else
 		    return $this->user_data;
