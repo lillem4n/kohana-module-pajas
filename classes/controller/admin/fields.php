@@ -22,7 +22,7 @@ class Controller_Admin_Fields extends Admincontroller {
 
 	public function action_add_field()
 	{
-		if (!empty($_POST) && isset($_POST['field_name']))
+		if ( ! empty($_POST) && isset($_POST['field_name']))
 		{
 			$post = new Validation($_POST);
 			$post->filter('trim');
