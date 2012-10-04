@@ -108,7 +108,7 @@ class Model_User extends Model
 	 */
 	public static function field_name_available($field_name)
 	{
-		return (bool) ! self::get_data_field_id($field_name);
+		return (bool) ! self::driver()->get_data_field_id($field_name);
 	}
 
 	/**
