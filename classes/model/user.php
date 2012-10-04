@@ -215,6 +215,17 @@ class Model_User extends Model
 	}
 
 	/**
+	 * Get user ID by username
+	 *
+	 * @param str $username
+	 * @return int User ID
+	 **/
+	public static function get_user_id_by_username($username)
+	{
+		return self::driver()->get_user_id_by_username($username);
+	}
+
+	/**
 	 * Get restricted URIs
 	 * @return arr
 	 */
