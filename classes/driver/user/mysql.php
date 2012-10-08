@@ -154,9 +154,9 @@ class Driver_User_Mysql extends Driver_User
 		$data_fields = array();
 		$sql         = 'SELECT users.id,users.username,';
 
-		if ( ! empty($field_search))
+		if ( ! empty($return_fields))
 		{
-			$fields_sql  = 'SELECT id, name FROM user_data_fields ';
+			$fields_sql = 'SELECT id, name FROM user_data_fields ';
 
 			if (is_array($return_fields))
 			{
