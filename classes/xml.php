@@ -53,7 +53,7 @@ class Xml
 					else
 						$array[$xml_child->tagName] = self::_to_array($xml_child);
 				}
-				elseif ($XML->documentElement->childNodes->lenth == 1)
+				elseif ($XML->documentElement->childNodes->length == 1)
 					$array = $xml_child->nodeValue;
 				else
 					$array[$nr] = $xml_child->nodeValue;
