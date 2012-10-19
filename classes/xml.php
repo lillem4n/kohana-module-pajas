@@ -38,7 +38,7 @@ class Xml
 				$XML = trim(substr($XML, strpos($XML, '?>') + 2), "\n");
 
 			$XML_string = '<x>'.$XML.'</x>';
-			$XML = new DOMDocument;
+			$XML = new DOMDocument('1.0', 'UTF-8');
 			$XML->loadXML($XML_string);
 
 			$array = array();
@@ -127,7 +127,7 @@ class Xml
 	 *
 	 * As DOMNode:
 	 * <?php
-	 * $doc = new DOMDocument();
+	 * $doc = new DOMDocument('1.0', 'UTF-8');
 	 * $container = $doc->appendChild($doc->createElement('root'));
 	 *
 	 * xml::to_XML(array('fnupp'=>'dah'), $container);
@@ -196,7 +196,7 @@ class Xml
 	 *
 	 * Combine DOMNode and plain text sub node creation
 	 *
-	 * $DOM_document = new DOMDocument();
+	 * $DOM_document = new DOMDocument('1.0', 'UTF-8');
 	 * $root_node    = $DOM_document->appendChild($DOM_document->createElement('root'));
 	 *
 	 * xml::to_XML(array('fnupp' => 'dah'), array('sub_node' => $root_node))
@@ -325,8 +325,8 @@ class Xml
 		if (is_string($data))
 		{
 			// SQL statement - make it an array
-			$pdo    = Kohana_pdo::instance();
-			$data   = $pdo->query($data)->fetchAll(PDO::FETCH_ASSOC);
+			$pdo  = Kohana_pdo::instance();
+			$data = $pdo->query($data)->fetchAll(PDO::FETCH_ASSOC);
 		}
 		elseif (is_object($data))
 		{
@@ -339,10 +339,10 @@ class Xml
 		}
 
 		if ($container === NULL)
-			$DOM_document = new DOMDocument();
+			$DOM_document = new DOMDocument('1.0', 'UTF-8');
 		elseif (is_string($container))
 		{
-			$DOM_document  = new DOMDocument();
+			$DOM_document  = new DOMDocument('1.0', 'UTF-8');
 			$alt_container = $DOM_document->appendChild($DOM_document->createElement($container));
 		}
 		elseif (is_array($container))
@@ -619,7 +619,7 @@ class Xml
 	 */
 	public static function xml_to_DOM_node($xml, $DOM_node)
 	{
-		$xml_inc                     = new DOMDocument;
+		$xml_inc                     = new DOMDocument('1.0', 'UTF-8');
 		$xml_inc->resolveExternals   = TRUE;
 		$xml_inc->substituteEntities = TRUE;
 		$xml_inc->preserveWhiteSpace = FALSE;
