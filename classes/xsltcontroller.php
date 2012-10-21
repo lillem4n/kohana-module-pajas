@@ -354,10 +354,23 @@ Array
 		$formatted_formdata = array();
 		foreach ($formdata as $field => $data)
 		{
-			$formatted_formdata[] = array(
-				'@id'      => $field,
-				'$content' => $data,
-			);
+			if (is_array($data))
+			{
+				foreach ($data as $data_part)
+				{
+					$formatted_formdata[] = array(
+						'@id'      => $field,
+						'$content' => $data_part,
+					);
+				}
+			}
+			else
+			{
+				$formatted_formdata[] = array(
+					'@id'      => $field,
+					'$content' => $data,
+				);
+			}
 		}
 
 		xml::to_XML($formatted_formdata, $this->xml_content_formdata, 'field');
