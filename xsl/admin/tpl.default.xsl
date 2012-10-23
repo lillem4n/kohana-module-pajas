@@ -44,9 +44,9 @@
 				<base href="http://{root/meta/domain}{/root/meta/base}admin/" />
 
 				<!-- jQuery -->
-				<link type="text/css" href="{/root/meta/base}css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="stylesheet" media="all" />
-				<script type="text/javascript" src="{/root/meta/base}js/jquery-1.7.1.min.js" />
-				<script type="text/javascript" src="{/root/meta/base}js/jquery-ui-1.8.17.custom.min.js" />
+				<script type="text/javascript" src="http://code.jquery.com/jquery.min.js" />
+				<script type="text/javascript" src="http://code.jquery.com/ui/1.9.0/jquery-ui.min.js" />
+				<link type="text/css" rel="stylesheet" media="all" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
 
 				<title><xsl:value-of select="$title" /></title>
 				<!--[if lt IE 7]>
