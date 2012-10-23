@@ -234,14 +234,16 @@ class Content_Content extends Model
 			foreach ($content['tags'] as $tag_name => $tag_values)
 			{
 				foreach ($tag_values as $tag_value)
+				{
+					$counter++;
 					$content['tags'][$counter.$tag_name] = array(
 						'@id'    => Tags::get_id_by_name($tag_name),
 						'$value' => $tag_value
 					);
+				}
 
 				unset($content['tags'][$tag_name]);
 				if (count($tag_values) == 0) $content['tags'][$tag_name] = array('@id' => Tags::get_id_by_name($tag_name));
-				$counter++;
 			}
 
 			$content['@id']     = $content['id'];
