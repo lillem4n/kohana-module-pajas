@@ -10,9 +10,6 @@ class Controller_Generic extends Xsltcontroller
 		// Empty string defaults to 'welcome'
 		if ($URI == '' || $URI == '/') $URI = 'welcome';
 
-		// Set the name of the template to use
-		$this->xslt_stylesheet = 'generic';
-
 		// Initiate the page model
 		$content_page = new Content_Page(Content_Page::get_page_id_by_uri($URI));
 
