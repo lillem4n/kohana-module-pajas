@@ -75,6 +75,23 @@ abstract class Driver_User extends Model
 	abstract public function get_user_data($user_id);
 
 	/**
+	 * Get user id by field
+	 *
+	 * @param str $field - Field name
+	 * @param str $value - Field value (OPTIONAL)
+	 * @return int (Will only return first row if several matches exists)
+	 */
+	abstract public function get_user_id_by_field($field, $value = FALSE);
+
+	/**
+	 * Get user id by username
+	 *
+	 * @param str $username
+	 * @return int
+	 */
+	abstract public function get_user_id_by_username($username);
+
+	/**
 	 * Get user id by username and (ENCRYPTED!!!) password
 	 *
 	 * @param str $username
