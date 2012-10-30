@@ -215,6 +215,18 @@ class Model_User extends Model
 	}
 
 	/**
+	 * Get user id by field
+	 *
+	 * @param str $field - Field name
+	 * @param str $value - Field value (OPTIONAL)
+	 * @return int (Will only return first row if several matches exists)
+	 */
+	public static function get_user_id_by_field($field, $value = FALSE)
+	{
+		return self::driver()->get_user_id_by_field($field, $value);
+	}
+
+	/**
 	 * Get user ID by username
 	 *
 	 * @param str $username

@@ -86,6 +86,21 @@ class Driver_User_Mysql extends Driver_User
 		return $user_data;
 	}
 
+	public function get_user_id_by_field($field, $value = FALSE)
+	{
+		$sql = '
+			SELECT user_id
+			FROM user_users_data
+			WHERE
+				field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).')';
+
+		if ($value)
+			$sql .= '
+				AND data = '.$this->pdo->quote($value);
+
+		return $this->pdo->query($sql)->fetchColumn();
+	}
+
 	public function get_user_id_by_username($username)
 	{
 		return $this->pdo->query('SELECT id FROM user_users WHERE username = '.$this->pdo->quote($username))->fetchColumn();
@@ -195,16 +210,13 @@ class Driver_User_Mysql extends Driver_User
 		{
 			foreach ($field_search as $field => $search_string)
 			{
-				if ($field_id = array_search($field, $data_fields))
+				if (is_array($search_string))
 				{
-					if (is_array($search_string))
-					{
-						foreach ($search_string as $this_search_string)
-							$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data = '.$this->pdo->quote($this_search_string).') OR';
-					}
-					else
-						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data = '.$this->pdo->quote($search_string).') OR';
+					foreach ($search_string as $this_search_string)
+						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).') OR';
 				}
+				else
+					$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($search_string).') OR';
 			}
 		}
 
@@ -245,7 +257,7 @@ class Driver_User_Mysql extends Driver_User
 				if ($order_by_set) $sql = substr($sql, 0, strlen($sql) - 1);
 			}
 		}
-/**/
+		/**/
 		if ($limit)
 		{
 			if ($start) $sql .= ' LIMIT '.$start.','.$limit;
