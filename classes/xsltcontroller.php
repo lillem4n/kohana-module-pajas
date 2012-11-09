@@ -173,9 +173,7 @@ abstract class Xsltcontroller extends Controller
 			// See if we have a user agent that triggers the server side HTML generation
 			$user_agent_trigger = FALSE;
 			foreach (Kohana::$config->load('xslt.user_agents') as $user_agent)
-			{
 				if (strpos($_SERVER['HTTP_USER_AGENT'], $user_agent)) $user_agent_trigger = TRUE;
-			}
 
 			if ($this->transform === TRUE || ($this->transform == 'auto' && $user_agent_trigger == TRUE))
 			{
@@ -201,7 +199,7 @@ abstract class Xsltcontroller extends Controller
 		elseif ($this->transform == 'JSON')
 		{
 			$this->response->headers('Content-type: application/json; encoding='.Kohana::$charset.';');
-			echo json_encode(new SimpleXMLElement($this->dom->saveXML(), LIBXML_NOCDATA));
+			echo json_encode(xml::to_Array($this->dom->saveXML()));
 		}
 
 		return TRUE;
