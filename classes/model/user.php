@@ -402,7 +402,7 @@ class Model_User extends Model
 	 */
 	public function login_by_username_and_password($username, $password)
 	{
-		if ($user_id = self::driver()->get_user_id_by_username_and_password($username, self::password_encrypt($password, $username)))
+		if ($user_id = self::driver()->get_user_id_by_username_and_password($username, $this->password_encrypt($password, $username)))
 		{
 			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $user_id;
 			return $this->load_user_data($user_id);
@@ -483,7 +483,7 @@ class Model_User extends Model
 
 		if ( ! self::username_available($username)) return FALSE;
 
-		$user_id = self::driver()->new_user($username, self::password_encrypt($password, $username), $user_data);
+		$user_id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
 
 		if ($load_to_instance)
 		{
@@ -507,7 +507,7 @@ class Model_User extends Model
 	 * @param str $username - username of the user that gets their password encrypted
 	 * @return string - encrypted
 	 */
-	public static function password_encrypt($password, $username)
+	public function password_encrypt($password, $username)
 	{
 		return hash_hmac('sha256', $username.$password.Kohana::$config->load('user.password_salt'), Kohana::$config->load('user.shared_key'));
 	}
@@ -572,7 +572,7 @@ class Model_User extends Model
 			if (isset($user_data['password']))
 			{
 				if ($user_data['password'] != '')
-					self::driver()->set_password($this->get_user_id(), self::password_encrypt($user_data['password'], $this->get_username()));
+					self::driver()->set_password($this->get_user_id(), $this->password_encrypt($user_data['password'], $this->get_username()));
 
 				unset($user_data['password']);
 			}
