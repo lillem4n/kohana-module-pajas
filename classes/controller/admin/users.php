@@ -15,12 +15,10 @@ class Controller_Admin_Users extends Admincontroller {
 
 		$fields = array();
 		foreach (User::get_data_fields() as $field_id => $field_name)
-		{
 			$fields['field id="'.$field_id.'"'] = $field_name;
-		}
 
 		xml::to_XML($fields, $this->xml_content_users);
-		xml::to_XML(User::get_users(FALSE, 0, 100, array('username'=>'ASC')), $this->xml_content_users, 'user', 'id');
+		xml::to_XML(User::get_users(FALSE, 0, 10000, array('role' => 'ASC', 'username'=>'ASC'), FALSE, array('firstname', 'lastname', 'role')), $this->xml_content_users, 'user', 'id');
 	}
 
 	private function list_available_data_fields()

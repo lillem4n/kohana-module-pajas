@@ -108,7 +108,7 @@ class Model_User extends Model
 	 */
 	public static function field_name_available($field_name)
 	{
-		return (bool) ! self::get_data_field_id($field_name);
+		return (bool) ! self::driver()->get_data_field_id($field_name);
 	}
 
 	/**
@@ -174,19 +174,26 @@ class Model_User extends Model
 	 * Get user data
 	 *
 	 * @param str $field - if only a single data field is wanted
+	 * @param bol $return_as_string - Will return the first match as string, only in combination with $field
 	 * @return
 	 *         array - example: array('firstname' => array('John'), 'lastname' => array('Smith'), 'email' => array('one@larvit.se', 'tow@larvit.se'))
 	 *         or
 	 *         array - example: array('one@larvit.se', 'tow@larvit.se')
 	 */
-	public function get_user_data($field = false)
+	public function get_user_data($field = FALSE, $return_as_string = FALSE)
 	{
 	  if (is_array($this->user_data))
 	  {
 	  	if ($field)
 	  	{
 	  		if (isset($this->user_data[$field]))
-	  			return $this->user_data[$field];
+	  		{
+	  			if ($return_as_string)
+	  			{
+	  				return reset($this->user_data[$field]);
+	  			}
+	  			else return $this->user_data[$field];
+	  		}
 	  	}
 	  	else
 		    return $this->user_data;
@@ -205,6 +212,29 @@ class Model_User extends Model
 			return $this->user_id;
 
 		return FALSE;
+	}
+
+	/**
+	 * Get user id by field
+	 *
+	 * @param str $field - Field name
+	 * @param str $value - Field value (OPTIONAL)
+	 * @return int (Will only return first row if several matches exists)
+	 */
+	public static function get_user_id_by_field($field, $value = FALSE)
+	{
+		return self::driver()->get_user_id_by_field($field, $value);
+	}
+
+	/**
+	 * Get user ID by username
+	 *
+	 * @param str $username
+	 * @return int User ID
+	 **/
+	public static function get_user_id_by_username($username)
+	{
+		return self::driver()->get_user_id_by_username($username);
 	}
 
 	/**
@@ -258,7 +288,8 @@ class Model_User extends Model
 		$restricted  = FALSE;
 		foreach (self::get_restricted_URIs() as $restricted_URI)
 		{
-			$exact_match = (bool) (substr($restricted_URI, strlen($restricted_URI) - 1) != '*');
+			$restricted_URI = substr(URL::base(), 1).$restricted_URI;
+			$exact_match    = (bool) (substr($restricted_URI, strlen($restricted_URI) - 1) != '*');
 
 			if (
 				($exact_match == TRUE && $restricted_URI == $request_URI) ||
@@ -273,24 +304,27 @@ class Model_User extends Model
 		elseif ($restricted && ! $this->logged_in()) return FALSE;
 		elseif ($restricted && $this->logged_in())
 		{
-			$roles = self::get_roles();
-			foreach ($this->get_user_data('role') as $role)
+			$roles      = self::get_roles();
+			$base_url   = substr(URL::base(), 1);
+			$user_roles = $this->get_user_data('role');
+			if ($user_roles)
 			{
-				if (isset($roles[$role]))
+				foreach ($this->get_user_data('role') as $role)
 				{
-					foreach ($roles[$role] as $got_access_to)
+					if (isset($roles[$role]))
 					{
-						$exact_match = (bool) (substr($got_access_to, strlen($got_access_to) - 1) != '*');
-
-						if (
-							($exact_match == TRUE && $request_URI == $got_access_to) ||
-							(
-								$exact_match == FALSE &&
-								substr($request_URI, 0, strlen($got_access_to) - 1) == substr($got_access_to, 0, strlen($got_access_to) - 1)
-							)
-						)
+						foreach ($roles[$role] as $got_access_to)
 						{
-							return TRUE;
+							$got_access_to = $base_url.$got_access_to;
+							$exact_match   = (bool) (substr($got_access_to, strlen($got_access_to) - 1) != '*');
+
+							if (
+								($exact_match == TRUE && $request_URI == $got_access_to) ||
+								(
+									$exact_match == FALSE &&
+									substr($request_URI, 0, strlen($got_access_to) - 1) == substr($got_access_to, 0, strlen($got_access_to) - 1)
+								)
+							) return TRUE;
 						}
 					}
 				}
@@ -322,7 +356,7 @@ class Model_User extends Model
 	 * @param int $user_id
 	 * @return boolean
 	 */
-	private function load_user_data($user_id)
+	protected function load_user_data($user_id)
 	{
 		if ($user_id == -1)
 		{
@@ -368,7 +402,7 @@ class Model_User extends Model
 	 */
 	public function login_by_username_and_password($username, $password)
 	{
-		if ($user_id = self::driver()->get_user_id_by_username_and_password($username, self::password_encrypt($password, $username)))
+		if ($user_id = self::driver()->get_user_id_by_username_and_password($username, $this->password_encrypt($password, $username)))
 		{
 			if ($this->instance_name) $_SESSION['modules']['pajas'][$this->instance_name] = $user_id;
 			return $this->load_user_data($user_id);
@@ -449,7 +483,7 @@ class Model_User extends Model
 
 		if ( ! self::username_available($username)) return FALSE;
 
-		$user_id = self::driver()->new_user($username, self::password_encrypt($password, $username), $user_data);
+		$user_id = self::driver()->new_user($username, $this->password_encrypt($password, $username), $user_data);
 
 		if ($load_to_instance)
 		{
@@ -473,7 +507,7 @@ class Model_User extends Model
 	 * @param str $username - username of the user that gets their password encrypted
 	 * @return string - encrypted
 	 */
-	public static function password_encrypt($password, $username)
+	public function password_encrypt($password, $username)
 	{
 		return hash_hmac('sha256', $username.$password.Kohana::$config->load('user.password_salt'), Kohana::$config->load('user.shared_key'));
 	}
@@ -538,7 +572,7 @@ class Model_User extends Model
 			if (isset($user_data['password']))
 			{
 				if ($user_data['password'] != '')
-					self::driver()->set_password($this->get_user_id(), self::password_encrypt($user_data['password'], $this->get_username()));
+					self::driver()->set_password($this->get_user_id(), $this->password_encrypt($user_data['password'], $this->get_username()));
 
 				unset($user_data['password']);
 			}

@@ -30,18 +30,36 @@ class Controller_Media extends Controller
 		}
 	}
 
+	public function action_fonts()
+	{
+		$path                   = $this->request->param('path');
+		$path_info              = pathinfo($path);
+		$path_info['extension'] = strtolower($path_info['extension']);
+
+		$file = Kohana::find_file('fonts', substr($path, 0, strlen($path) - (strlen($path_info['extension']) + 1)), $path_info['extension']);
+		if ($file && in_array($path_info['extension'], array('eot', 'svg', 'ttf', 'woff')))
+		{
+			$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+
+			if     ($path_info['extension'] == 'eot')  $this->response->headers('Content-Type', 'application/vnd.ms-fontobject');
+			elseif ($path_info['extension'] == 'svg')  $this->response->headers('Content-Type', 'image/svg+xml');
+			elseif ($path_info['extension'] == 'ttf')  $this->response->headers('Content-Type', 'font/ttf');
+			elseif ($path_info['extension'] == 'woff') $this->response->headers('Content-Type', 'application/x-font-woff');
+
+			echo file_get_contents($file);
+		}
+		else throw new Http_Exception_404('File not found!');
+	}
+
 	public function action_img()
 	{
-		$file = $this->request->param('path');
+		$path      = $this->request->param('path');
+		$path_info = pathinfo($path);
 
-		// Find the file ending
-		$file_parts  = explode('.', $file);
-		$file_ending = end($file_parts);
-
-		$file = Kohana::find_file('img', substr($file, 0, strlen($file) - (strlen($file_ending) + 1)), $file_ending);
+		$file = Kohana::find_file('img', substr($path, 0, strlen($path) - (strlen($path_info['extension']) + 1)), $path_info['extension']);
 		if ($file)
 		{
-			$mime = File::mime_by_ext($file_ending);
+			$mime = File::mime_by_ext($path_info['extension']);
 			if (substr($mime, 0, 5) == 'image')
 			{
 				$this->response->headers('Content-Type', 'content-type: '.$mime.'; encoding='.Kohana::$charset.';');
@@ -49,17 +67,17 @@ class Controller_Media extends Controller
 				// Getting headers sent by the client.
 				$headers = apache_request_headers();
 
+				$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+
 				// Checking if the client is validating his cache and if it is current.
 				if (isset($headers['If-Modified-Since']) && (strtotime($headers['If-Modified-Since']) == filemtime($file)))
 				{
 					// Client's cache IS current, so we just respond '304 Not Modified'.
-					$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
 					$this->response->status(304);
 				}
 				else
 				{
 					// Image not cached or cache outdated, we respond '200 OK' and output the image.
-					$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
 					$this->response->headers('Content-Length', strval(filesize($file)));
 					$this->response->status(200);
 					echo file_get_contents($file);
@@ -89,10 +107,7 @@ class Controller_Media extends Controller
 			$this->response->headers('Content-Type', 'application/javascript');
 			echo file_get_contents($file);
 		}
-		else
-		{
-			throw new Http_Exception_404('File not found!');
-		}
+		else throw new Http_Exception_404('File not found!');
 	}
 
 	public function action_user_content_image()
@@ -160,7 +175,6 @@ class Controller_Media extends Controller
 			$file = Kohana::$cache_dir.'/user_content/images/'.$filename.$cache_ending;
 			if ( ! file_exists($file))
 			{
-
 				exec('mkdir -p '.$dir_to_create);
 				exec('chmod -R a+w '.Kohana::$cache_dir.'/user_content/images'); // Make sure its writeable by all
 
@@ -188,14 +202,9 @@ class Controller_Media extends Controller
 					imagegif($dst, $file);
 				}
 				*/
-
 			}
 		}
-		else
-		{
-			$file = Kohana::$config->load('user_content.dir').'/images/'.$file;
-		}
-
+		else $file = Kohana::$config->load('user_content.dir').'/images/'.$file;
 
 		if (file_exists($file))
 		{
@@ -207,17 +216,17 @@ class Controller_Media extends Controller
 				// Getting headers sent by the client.
 				$headers = apache_request_headers();
 
+				$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
+
 				// Checking if the client is validating his cache and if it is current.
 				if (isset($headers['If-Modified-Since']) && (strtotime($headers['If-Modified-Since']) == filemtime($file)))
 				{
 					// Client's cache IS current, so we just respond '304 Not Modified'.
-					$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
 					$this->response->status(304);
 				}
 				else
 				{
 					// Image not cached or cache outdated, we respond '200 OK' and output the image.
-					$this->response->headers('Last-Modified', gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
 					$this->response->headers('Content-Length', strval(filesize($file)));
 					$this->response->status(200);
 					echo file_get_contents($file);

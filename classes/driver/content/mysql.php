@@ -6,7 +6,7 @@ class Driver_Content_Mysql extends Driver_Content
 	protected function check_db_structure()
 	{
 
-		// Make PDO silen during these checks
+		// Make PDO silent during these checks
 		$this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 
 		$db_check_pass = TRUE;

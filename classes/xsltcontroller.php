@@ -91,16 +91,30 @@ abstract class Xsltcontroller extends Controller
 		// Create the meta node
 		$this->xml_meta = $this->xml->appendChild($this->dom->createElement('meta'));
 
+		// Format URL params
+		$url_params = $_GET;
+		foreach ($url_params as $key => $url_param)
+		{
+			if (is_array($url_param))
+			{
+				foreach ($url_param as $nr => $data)
+				{
+					$url_params[$nr.$key] = $data;
+					unset($url_params[$key]);
+				}
+			}
+		}
+
 		xml::to_XML(
 			array(
-				'protocol'      => (isset($_SERVER['HTTPS'])) ? 'https' : 'http',
-				'domain'        => $_SERVER['SERVER_NAME'],
-				'base'					=> URL::base(),
-				'path'          => $this->request->uri(),
-				'action'        => $this->request->action(),
-				'controller'    => $this->request->controller(),
-				'url_params'    => $_GET,
-				'post_params'   => $_POST,
+				'protocol'    => (isset($_SERVER['HTTPS'])) ? 'https' : 'http',
+				'domain'      => $_SERVER['SERVER_NAME'],
+				'base'        => URL::base(),
+				'path'        => $this->request->uri(),
+				'action'      => $this->request->action(),
+				'controller'  => $this->request->controller(),
+				'url_params'  => $url_params,
+				'post_params' => $_POST,
 			),
 			$this->xml_meta
 		);
@@ -159,52 +173,12 @@ abstract class Xsltcontroller extends Controller
 			// See if we have a user agent that triggers the server side HTML generation
 			$user_agent_trigger = FALSE;
 			foreach (Kohana::$config->load('xslt.user_agents') as $user_agent)
-			{
 				if (strpos($_SERVER['HTTP_USER_AGENT'], $user_agent)) $user_agent_trigger = TRUE;
-			}
 
 			if ($this->transform === TRUE || ($this->transform == 'auto' && $user_agent_trigger == TRUE))
 			{
 				$xslt = new DOMDocument;
-				if (file_exists(getenv('DOCUMENT_ROOT').$this->xslt_path.$this->xslt_stylesheet.'.xsl'))
-				{
-					// If the stylesheet exists in the specified path, load it directly
-					$xslt->load(getenv('DOCUMENT_ROOT').$this->xslt_path.$this->xslt_stylesheet.'.xsl');
-				}
-				else
-				{
-					// Else make a search for it
-
-					// We need to load all theme modules
-					foreach (scandir(MODPATH) as $modulePath)
-					{
-						if (substr($modulePath, 0, 5) == 'theme')
-						{
-							Kohana::modules(array($modulePath => MODPATH.$modulePath) + Kohana::modules());
-						}
-					}
-
-					$xslt->load(Kohana::find_file(
-						rtrim(preg_replace('/^'.str_replace('/', '\\/', Kohana::$base_url).'/', '', $this->xslt_path), '/'),
-						$this->xslt_stylesheet,
-						'xsl'
-					));
-				}
-
-				// We need to update paths to included XSL elements
-				$XPath         = new DOMXPath($xslt);
-				$include_nodes = $XPath->query('//xsl:include');
-
-				foreach ($include_nodes as $include_node)
-				{
-					foreach ($include_node->attributes as $attribute_node)
-					{
-						$new_filename = Kohana::find_file(rtrim(preg_replace('/^'.str_replace('/', '\\/', Kohana::$base_url).'/', '', $this->xslt_path.$extra_xslt_path), '/'), substr($attribute_node->nodeValue, 0, strlen($attribute_node->nodeValue) - 4), 'xsl');
-						$include_node->removeAttribute('href');
-						$include_node->setAttribute('href', $new_filename);
-					}
-				}
-				// Done updating paths
+				$xslt->load('http://'.$_SERVER['HTTP_HOST'].$this->xslt_path.$this->xslt_stylesheet.'.xsl');
 
 				$proc = new xsltprocessor();
 				$proc->importStyleSheet($xslt);
@@ -225,7 +199,7 @@ abstract class Xsltcontroller extends Controller
 		elseif ($this->transform == 'JSON')
 		{
 			$this->response->headers('Content-type: application/json; encoding='.Kohana::$charset.';');
-			echo json_encode(new SimpleXMLElement($this->dom->saveXML(), LIBXML_NOCDATA));
+			echo json_encode(xml::to_Array($this->dom->saveXML()));
 		}
 
 		return TRUE;
@@ -378,10 +352,23 @@ Array
 		$formatted_formdata = array();
 		foreach ($formdata as $field => $data)
 		{
-			$formatted_formdata[] = array(
-				'@id'      => $field,
-				'$content' => $data,
-			);
+			if (is_array($data))
+			{
+				foreach ($data as $data_part)
+				{
+					$formatted_formdata[] = array(
+						'@id'      => $field,
+						'$content' => $data_part,
+					);
+				}
+			}
+			else
+			{
+				$formatted_formdata[] = array(
+					'@id'      => $field,
+					'$content' => $data,
+				);
+			}
 		}
 
 		xml::to_XML($formatted_formdata, $this->xml_content_formdata, 'field');

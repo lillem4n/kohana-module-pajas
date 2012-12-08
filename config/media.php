@@ -8,8 +8,10 @@
 
 return array(
 	// Name of route and action to use => URL as a route, use multiple by splitting with |
-	'img' => 'img/<path>', // URL as a route
-	'css' => 'css/<path>.css',
-	'js'  => 'js/<path>.js',
-	'xsl' => 'xsl/<path>.xsl',
+	// Name (array key) will also be the action name in the media controller
+	'css'   => 'css/<path>.css',
+	'fonts' => 'fonts/<path>',
+	'img'   => 'img/<path>',
+	'js'    => 'js/<path>.js',
+	'xsl'   => 'xsl/<path>.xsl',
 );

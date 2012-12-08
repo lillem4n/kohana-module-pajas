@@ -49,12 +49,12 @@ class Validation
 		return $array;
 	}
 
-	public function get($field)
+	public function get($field = FALSE)
 	{
-		if (isset($this->array[$field]))
+		if ($field && isset($this->array[$field]))
 			return $this->array[$field];
-
-		return FALSE;
+		elseif ($field) return FALSE;
+		else return $this->array;
 	}
 
 	public function rule($rule, $field = FALSE, $second_param = NULL)

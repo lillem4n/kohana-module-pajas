@@ -86,6 +86,21 @@ class Driver_User_Mysql extends Driver_User
 		return $user_data;
 	}
 
+	public function get_user_id_by_field($field, $value = FALSE)
+	{
+		$sql = '
+			SELECT user_id
+			FROM user_users_data
+			WHERE
+				field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).')';
+
+		if ($value)
+			$sql .= '
+				AND data = '.$this->pdo->quote($value);
+
+		return $this->pdo->query($sql)->fetchColumn();
+	}
+
 	public function get_user_id_by_username($username)
 	{
 		return $this->pdo->query('SELECT id FROM user_users WHERE username = '.$this->pdo->quote($username))->fetchColumn();
@@ -117,47 +132,46 @@ class Driver_User_Mysql extends Driver_User
 
 	public function get_users($q = FALSE, $start = 0, $limit = FALSE, $order_by = FALSE, $field_search = FALSE, $return_fields = TRUE)
 	{
-/* Same thing, but with JOIN. Have a bug when there are multiple values of the same data_field... and also isnt faster with current DB structure * /
-		$columns = 'users.id,users.username,';
-		$from    = 'user_users AS users ';
-		foreach ($this->pdo->query('SELECT id, name FROM user_data_fields ORDER BY name;') as $row)
-		{
-			$columns .= 'GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \') AS '.Mysql::quote_identifier($row['name']).',';
-			$from    .= 'LEFT JOIN user_users_data AS '.Mysql::quote_identifier('data_'.$row['name']).' ON '.Mysql::quote_identifier('data_'.$row['name']).'.user_id = users.id AND '.Mysql::quote_identifier('data_'.$row['name']).'.field_id = '.$row['id'].' ';
-		}
-		$columns = substr($columns, 0, strlen($columns) - 1);
-
-		$sql = 'SELECT '.$columns.' FROM '.$from.' GROUP BY users.id';
-
-		if ( ! empty($order_by))
-		{
-			if (is_string($order_by))
+		/* Same thing, but with JOIN. Have a bug when there are multiple values of the same data_field... and also isnt faster with current DB structure * /
+			$columns = 'users.id,users.username,';
+			$from    = 'user_users AS users ';
+			foreach ($this->pdo->query('SELECT id, name FROM user_data_fields ORDER BY name;') as $row)
 			{
-				$sql .= ' ORDER BY IF(ISNULL(GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')),1,0),GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')';
+				$columns .= 'GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \') AS '.Mysql::quote_identifier($row['name']).',';
+				$from    .= 'LEFT JOIN user_users_data AS '.Mysql::quote_identifier('data_'.$row['name']).' ON '.Mysql::quote_identifier('data_'.$row['name']).'.user_id = users.id AND '.Mysql::quote_identifier('data_'.$row['name']).'.field_id = '.$row['id'].' ';
 			}
-			elseif (is_array($order_by))
+			$columns = substr($columns, 0, strlen($columns) - 1);
+
+			$sql = 'SELECT '.$columns.' FROM '.$from.' GROUP BY users.id';
+
+			if ( ! empty($order_by))
 			{
-				$sql .= ' ORDER BY ';
-				foreach ($order_by as $field => $order)
+				if (is_string($order_by))
 				{
-					$sql .= 'IF(ISNULL(GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')),1,0),GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')';
-
-					if ($order == 'ASC' || $order == 'DESC') $sql .= ' '.$order;
-
-					$sql .= ',';
+					$sql .= ' ORDER BY IF(ISNULL(GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')),1,0),GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')';
 				}
-				$sql = substr($sql, 0, strlen($sql) - 1);
+				elseif (is_array($order_by))
+				{
+					$sql .= ' ORDER BY ';
+					foreach ($order_by as $field => $order)
+					{
+						$sql .= 'IF(ISNULL(GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')),1,0),GROUP_CONCAT('.Mysql::quote_identifier('data_'.$row['name']).'.data SEPARATOR \', \')';
+
+						if ($order == 'ASC' || $order == 'DESC') $sql .= ' '.$order;
+
+						$sql .= ',';
+					}
+					$sql = substr($sql, 0, strlen($sql) - 1);
+				}
 			}
-		}
+		/**/
 
-
-/**/
 		$data_fields = array();
 		$sql         = 'SELECT users.id,users.username,';
 
-		if ($return_fields != FALSE)
+		if ( ! empty($return_fields))
 		{
-			$fields_sql  = 'SELECT id, name FROM user_data_fields ';
+			$fields_sql = 'SELECT id, name FROM user_data_fields ';
 
 			if (is_array($return_fields))
 			{
@@ -196,16 +210,13 @@ class Driver_User_Mysql extends Driver_User
 		{
 			foreach ($field_search as $field => $search_string)
 			{
-				if ($field_id = array_search($field, $data_fields))
+				if (is_array($search_string))
 				{
-					if (is_array($search_string))
-					{
-						foreach ($search_string as $this_search_string)
-							$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data LIKE '.$this->pdo->quote('%'.$this_search_string.'%').') OR';
-					}
-					else
-						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = '.$field_id.' AND data LIKE '.$this->pdo->quote('%'.$search_string.'%').') OR';
+					foreach ($search_string as $this_search_string)
+						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).') OR';
 				}
+				else
+					$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($search_string).') OR';
 			}
 		}
 
@@ -246,7 +257,7 @@ class Driver_User_Mysql extends Driver_User
 				if ($order_by_set) $sql = substr($sql, 0, strlen($sql) - 1);
 			}
 		}
-/**/
+		/**/
 		if ($limit)
 		{
 			if ($start) $sql .= ' LIMIT '.$start.','.$limit;
