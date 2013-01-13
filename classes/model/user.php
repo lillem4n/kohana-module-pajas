@@ -22,28 +22,28 @@ class Model_User extends Model
 	 *
 	 * @var array
 	 */
-	private $user_data;
+	protected $user_data;
 
 	/**
 	 * User id
 	 *
 	 * @var integer
 	 */
-	private $user_id;
+	protected $user_id;
 
 	/**
 	 * Username
 	 *
 	 * @var string
 	 */
-	private $username;
+	protected $username;
 
 	/**
 	 * This instance name
 	 *
 	 * @var string (FALSE if no session is used)
 	 */
-	private $instance_name;
+	protected $instance_name;
 
 	/**
 	 * Constructor
