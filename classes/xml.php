@@ -408,9 +408,7 @@ class Xml
 					$DOM_element->appendChild($DOM_document->createTextNode($value));
 				}
 				else
-				{
 					$DOM_element = self::to_XML($value, $DOM_element, NULL, $attributes, $text_values, $xml_fragments, $alter_code);
-				}
 			}
 			else
 			{
@@ -418,13 +416,9 @@ class Xml
 				if (isset($group))
 				{
 					if (isset($alt_container))
-					{
 						$group_element = $alt_container->appendChild($DOM_document->createElement($group));
-					}
 					else
-					{
 						$group_element = $container->appendChild($DOM_document->createElement($group));
-					}
 				}
 
 				// We have a container, create everything in it
@@ -446,18 +440,11 @@ class Xml
 						$attribute->appendChild($DOM_document->createTextNode($value));
 
 						if (isset($group_element))
-						{
 							$group_element->appendChild($attribute);
-						}
 						elseif (isset($alt_container))
-						{
 							$alt_container->appendChild($attribute);
-						}
 						else
-						{
 							$container->appendChild($attribute);
-						}
-
 					}
 					elseif (substr($tag, 0, 1) == '$' || in_array($tag, $text_values))
 					{
@@ -468,17 +455,11 @@ class Xml
 							$value     = $func_name($value, $tag);
 						}
 						if (isset($group_element))
-						{
 							$group_element->appendChild($DOM_document->createTextNode($value));
-						}
 						elseif (isset($alt_container))
-						{
 							$alt_container->appendChild($DOM_document->createTextNode($value));
-						}
 						else
-						{
 							$container->appendChild($DOM_document->createTextNode($value));
-						}
 					}
 					elseif (substr($tag, 0, 1) == '?' || in_array($tag, $xml_fragments))
 					{
@@ -497,18 +478,11 @@ class Xml
 						$DOM_element->appendChild($fragment);
 
 						if (isset($group_element))
-						{
 							$group_element->appendChild($DOM_element);
-						}
 						elseif (isset($alt_container))
-						{
 							$alt_container->appendChild($DOM_element);
-						}
 						else
-						{
 							$container->appendChild($DOM_element);
-						}
-
 					}
 					else
 					{
@@ -521,29 +495,17 @@ class Xml
 							$value     = $func_name($value, $tag);
 						}
 						if (!is_array($value))
-						{
 							$DOM_element->appendChild($DOM_document->createTextNode($value));
-						}
 						else
-						{
 							$DOM_element = self::to_XML($value, $DOM_element, NULL, $attributes, $text_values, $xml_fragments, $alter_code);
-						}
 
 						if (isset($group_element))
-						{
 							$group_element->appendChild($DOM_element);
-						}
 						elseif (isset($alt_container))
-						{
 							$alt_container->appendChild($DOM_element);
-						}
 						else
-						{
 							$container->appendChild($DOM_element);
-						}
-
 					}
-
 				}
 				else
 				{
@@ -560,33 +522,21 @@ class Xml
 					{
 						// This is a simple string value, just add it
 						if (isset($group_element))
-						{
 							$group_element->appendChild($DOM_document->createTextNode($value));
-						}
 						elseif (isset($alt_container))
-						{
 							$alt_container->appendChild($DOM_document->createTextNode($value));
-						}
 						else
-						{
 							$container->appendChild($DOM_document->createTextNode($value));
-						}
 					}
 					else
 					{
 						// This is children-stuff :)
 						if (isset($group_element))
-						{
 							$group_element = self::to_XML($value, $group_element, NULL, $attributes, $text_values, $xml_fragments, $alter_code);
-						}
 						elseif (isset($alt_container))
-						{
 							$alt_container = self::to_XML($value, $alt_container, NULL, $attributes, $text_values, $xml_fragments, $alter_code);
-						}
 						else
-						{
-							$container = self::to_XML($value, $container, NULL, $attributes, $text_values, $xml_fragments, $alter_code);
-						}
+							$container     = self::to_XML($value, $container, NULL, $attributes, $text_values, $xml_fragments, $alter_code);
 					}
 				}
 			}
@@ -600,15 +550,8 @@ class Xml
 
 		}
 
-		if (is_object($container))
-		{
-			return $container;
-		}
-		else
-		{
-			return $DOM_document;
-		}
-
+		if (is_object($container)) return $container;
+		else                       return $DOM_document;
 	}
 
 	/**
@@ -617,7 +560,7 @@ class Xml
 	 * @param str $xml
 	 * @param obj $DOM_node
 	 */
-	public static function xml_to_DOM_node($xml, $DOM_node)
+	public static function XML_to_DOM_node($xml, $DOM_node)
 	{
 		$xml_inc                     = new DOMDocument('1.0', 'UTF-8');
 		$xml_inc->resolveExternals   = TRUE;
