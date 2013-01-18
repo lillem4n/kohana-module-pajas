@@ -26,6 +26,14 @@
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 				<link type="text/css" href="{/root/meta/base}css/admin/style.css" rel="stylesheet" media="all" />
 
+				<link href='http://fonts.googleapis.com/css?family=Cuprum&amp;subset=latin' rel='stylesheet' type='text/css' />
+				<base href="http://{root/meta/domain}{/root/meta/base}admin/" />
+
+				<!-- jQuery -->
+				<script type="text/javascript" src="http://code.jquery.com/jquery.min.js" />
+				<script type="text/javascript" src="http://code.jquery.com/ui/1.9.0/jquery-ui.min.js" />
+				<link type="text/css" rel="stylesheet" media="all" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+
 				<!-- Custom CSS files -->
 				<xsl:if test="$css_files">
 					<xsl:for-each select="$css_files/file">
@@ -39,14 +47,6 @@
 						<script type="text/javascript" src="{.}" />
 					</xsl:for-each>
 				</xsl:if>
-
-				<link href='http://fonts.googleapis.com/css?family=Cuprum&amp;subset=latin' rel='stylesheet' type='text/css' />
-				<base href="http://{root/meta/domain}{/root/meta/base}admin/" />
-
-				<!-- jQuery -->
-				<script type="text/javascript" src="http://code.jquery.com/jquery.min.js" />
-				<script type="text/javascript" src="http://code.jquery.com/ui/1.9.0/jquery-ui.min.js" />
-				<link type="text/css" rel="stylesheet" media="all" href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
 
 				<title><xsl:value-of select="$title" /></title>
 				<!--[if lt IE 7]>
