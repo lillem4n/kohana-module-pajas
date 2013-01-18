@@ -55,7 +55,7 @@ input
 
 	input.error, textarea.error
 	{
-		background-color:   #ffe9e9;
+		background-color:     #ffe9e9;
 	}
 
 #logo
@@ -69,10 +69,14 @@ input
 
 .error
 {
-	font-weight:        bold;
-	color:              #f00;
+	font-weight:          bold;
+	color:                #f00;
 }
 
+.clear
+{
+	clear:                both;
+}
 
 
 /* ######### loginbox - START #########  */
