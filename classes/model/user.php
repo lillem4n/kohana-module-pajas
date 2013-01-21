@@ -78,6 +78,15 @@ class Model_User extends Model
 	}
 
 	/**
+	 * Simple factory
+	 * Same docs as to __construct()
+	 */
+	public static function factory($user_id = FALSE, $username = FALSE, $password = FALSE, $instance_name = 'default', $session = TRUE)
+	{
+		return new self($user_id, $username, $password, $instance_name, $session);
+	}
+
+	/**
 	 * Set the database driver
 	 *
 	 * @return boolean
@@ -476,7 +485,7 @@ class Model_User extends Model
 	 * @param bol $session          - If loaded into instance, also save in session
 	 * @return int (user_id) or obj (a new instance of this user as logged in)
 	 */
-	public static function new_user($username, $password, $user_data = array(), $load_to_instance = FALSE, $session = FALSE)
+	public function new_user($username, $password, $user_data = array(), $load_to_instance = FALSE, $session = FALSE)
 	{
 		Session::instance(); // Make sure sessions is turned on
 		if ($load_to_instance === TRUE) $load_to_instance = 'default';

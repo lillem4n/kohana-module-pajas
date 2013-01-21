@@ -120,7 +120,7 @@ class Controller_Admin_Users extends Admincontroller {
 					if ( ! isset($_GET['id']))
 					{
 						// Actually add the user
-						User::new_user(
+						User::factory()->new_user(
 							$post_values['username'],
 							$post_values['password'],
 							$fields
