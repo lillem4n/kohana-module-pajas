@@ -172,8 +172,9 @@ class Controller_Media extends Controller
 			$dir_to_create = Kohana::$cache_dir.'/user_content/images';
 			foreach ($filename_parts as $new_dir) $dir_to_create .= '/'.$new_dir;
 
-			$file = Kohana::$cache_dir.'/user_content/images/'.$filename.$cache_ending;
-			if ( ! file_exists($file))
+			$filename_w_path = Kohana::$config->load('user_content.dir').'/images/'.$filename;
+			$file            = Kohana::$cache_dir.'/user_content/images/'.$filename.$cache_ending;
+			if ( ! file_exists($file) || filemtime($file) < filemtime($filename_w_path))
 			{
 				exec('mkdir -p '.$dir_to_create);
 				exec('chmod -R a+w '.Kohana::$cache_dir.'/user_content/images'); // Make sure its writeable by all
@@ -181,14 +182,14 @@ class Controller_Media extends Controller
 				// Create a new cached resized file
 				if ($file_ending == 'jpg' || $file_ending == 'jpeg')
 				{
-					$src = imagecreatefromjpeg(Kohana::$config->load('user_content.dir').'/images/'.$filename);
+					$src = imagecreatefromjpeg($filename_w_path);
 					$dst = imagecreatetruecolor($_GET['width'], $_GET['height']);
 					imagecopyresampled($dst, $src, 0, 0, 0, 0, $_GET['width'], $_GET['height'], $original_width, $original_height);
 					imagejpeg($dst, $file);
 				}
 				elseif ($file_ending == 'png')
 				{
-					$src = imagecreatefrompng(Kohana::$config->load('user_content.dir').'/images/'.$filename);
+					$src = imagecreatefrompng($filename_w_path);
 					$dst = imagecreatetruecolor($_GET['width'], $_GET['height']);
 					imagecopyresampled($dst, $src, 0, 0, 0, 0, $_GET['width'], $_GET['height'], $original_width, $original_height);
 					imagepng($dst, $file);
