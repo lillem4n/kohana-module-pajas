@@ -1,3 +1,6 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
-class Controller_Welcome extends Controller_Generic {}
+class Controller_Welcome extends Controller_Generic
+{
+	public $xslt_stylesheet = 'generic';
+}
