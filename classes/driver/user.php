@@ -39,7 +39,8 @@ abstract class Driver_User extends Model
 	 */
 	protected function insert_initial_data() {
 		$this->new_field('role');
-		User::new_user('admin', 'admin', array('role' => 'admin'));
+		$user = new User(FALSE, FALSE, FALSE, 'tmp', FALSE);
+		$user->new_user('admin', 'admin', array('role' => 'admin'));
 		$this->new_role_uri('admin', 'admin*');
 	}
 
