@@ -350,30 +350,38 @@ Array
 		if ( ! isset($this->xml_content_formdata))
 			$this->xml_content_formdata = $this->xml_content->appendChild($this->dom->createElement('formdata'));
 
+		$formatted_formdata = $this->format_array($formdata);
+
+		xml::to_XML($formatted_formdata, $this->xml_content_formdata);
+		return TRUE;
+	}
+
+
+
+	private function format_array($formdata)
+	{
 		$formatted_formdata = array();
 		foreach ($formdata as $field => $data)
 		{
 			if (is_array($data))
 			{
-				foreach ($data as $data_part)
-				{
-					$formatted_formdata[] = array(
-						'@id'      => $field,
-						'$content' => $data_part,
-					);
-				}
+				$formatted_formdata[] = array(
+					'@id'			 => $field,
+					'field' => $this->format_array($data),
+				);
 			}
 			else
 			{
-				$formatted_formdata[] = array(
+				$formatted_formdata[] = array( 'field' => array(
 					'@id'      => $field,
 					'$content' => $data,
-				);
+				));
 			}
 		}
 
-		xml::to_XML($formatted_formdata, $this->xml_content_formdata, 'field');
-		return TRUE;
+		return $formatted_formdata;
+
 	}
+
 
 }
