@@ -329,15 +329,16 @@ Array
 			{
 				$redirect = $_SESSION['redirect'];
 				unset($_SESSION['redirect']);
-				$this->request->redirect($redirect);
+				$uri = $redirect;
 			}
 			elseif (isset($_SERVER['HTTP_REFERER']))
-				$this->request->redirect($_SERVER['HTTP_REFERER']);
+				$uri = $_SERVER['HTTP_REFERER'];
 			else
-				$this->request->redirect(Kohana::$base_url);
+				$uri = Kohana::$base_url;
 		}
 
-		$this->request->redirect($uri);
+		if (URL::base().$this->request->uri() != $uri)
+			$this->request->redirect($uri);
 	}
 
 	/**
