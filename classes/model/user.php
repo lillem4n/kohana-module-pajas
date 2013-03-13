@@ -291,42 +291,7 @@ class Model_User extends Model
 		return self::driver()->get_users($q, $start, $limit, $order_by, $field_search, $return_fields);
 	}
 
-
 	public function has_access_to($URI)
-	{
-		$request_URI = $URI;
-		if(substr($URI, 0, 1)=='/')
-			$request_URI = substr($URI, 1);
-		$roles = $this->get_roles();
-		$user_role = $this->get_user_data('role', TRUE);
-
-		if( ! isset($roles[$user_role]))
-		{
-			return FALSE;
-		}
-		else
-		{
-			$routes = $roles[$user_role];
-			$base_url   = substr(URL::base(), 1);
-
-			foreach ($routes as $got_access_to)
-			{
-				$got_access_to = $base_url.$got_access_to;
-				$exact_match   = (bool) (substr($got_access_to, strlen($got_access_to) - 1) != '*');
-
-				if (
-					($exact_match == TRUE && $request_URI == $got_access_to) ||
-					(
-						$exact_match == FALSE &&
-						substr($request_URI, 0, strlen($got_access_to) - 1) == substr($got_access_to, 0, strlen($got_access_to) - 1)
-					)
-				) return TRUE;
-			}
-		}
-		return FALSE;
-
-	}
-	/*public function has_access_to($URI)
 	{
 		$request_URI = substr($URI, 1);
 		$restricted  = FALSE;
@@ -377,7 +342,7 @@ class Model_User extends Model
 			// If no access have been found by now, user has no access
 			return FALSE;
 		}
-	}*/
+	}
 
 	/**
 	 * Get an instance of this object
