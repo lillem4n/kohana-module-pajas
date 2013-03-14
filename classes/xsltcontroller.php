@@ -148,7 +148,11 @@ abstract class Xsltcontroller extends Controller
 
 		if ( ! $user->has_access_to($_SERVER['REQUEST_URI']) && $this->ignore_acl == FALSE)
 		{
-			if ($this->acl_redirect_url) $this->redirect($this->acl_redirect_url);
+			if ($this->acl_redirect_url)
+			{
+				$_SESSION['old_path']=$this->request->uri();
+				$this->redirect($this->acl_redirect_url);
+			}
 			else                         throw new HTTP_Exception_403('403 Forbidden');
 		}
 

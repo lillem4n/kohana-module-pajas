@@ -17,6 +17,7 @@ class Controller_Admin_Login extends Admincontroller {
 			xml::to_XML(array('error' => $_SESSION['modules']['pajas']['error']), $this->xml_content);
 			unset($_SESSION['modules']['pajas']['error']);
 		}
+
 	}
 
 	public function action_do()
@@ -32,8 +33,15 @@ class Controller_Admin_Login extends Admincontroller {
 
 			$user = new User(FALSE, $post_values['username'], $post_values['password']);
 
-			if ($user->logged_in() && $user->has_access_to(URL::base().'admin'))
-    		$this->redirect('admin');
+			$old_path = $_SESSION['old_path'];
+
+			if ( isset($old_path) && $user->logged_in() && $user->has_access_to($old_path))
+			{
+				unset($_SESSION['old_path']);
+				$this->redirect($old_path);
+			}
+			elseif ($user->logged_in() && $user->has_access_to(URL::base().'admin'))
+				$this->redirect('admin');
 			elseif ( ! $user->logged_in())
 				$_SESSION['modules']['pajas']['error'] = 'Wrong username or password';
 			elseif ( ! $user->has_access_to(URL::base().'admin'))
