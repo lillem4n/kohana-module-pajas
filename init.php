@@ -1,7 +1,21 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-// Check and set up user content directory
+// Constants
+const DEPENDED_KOHANA_VERSION = '3.3.0';
+const PAJAS_VERSION           = '0.4';
 
+// Set a Cookie salt for pajas
+Cookie::$salt = 'pyIw7DtWsfFVyxnNi1ATszxeOoHRYQRgUKfPB7Uq';
+// $version = array(Kohana::VERSION, DEPENDED_KOHANA_VERSION);
+// var_dump($version);
+// die;
+// Make sure that the correct Kohana version is used.
+if ( version_compare(Kohana::VERSION, DEPENDED_KOHANA_VERSION, '=<') )
+{
+	throw new Kohana_Exception('This version of Kohana (:version) is not supported by Pajas', array(':version' => Kohana::VERSION));
+}
+
+// Check and set up user content directory
 if ( ! is_writable(Kohana::$config->load('user_content.dir')))
 {
 	throw new Kohana_Exception('Directory :dir must be writable',

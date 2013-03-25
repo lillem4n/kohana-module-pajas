@@ -6,7 +6,7 @@
  *
  * Downloaded from http://kohana.lillem4n.se
  */
-abstract class Xsltcontroller extends Controller
+class Xsltcontroller extends Controller
 {
 
 	/**
@@ -320,26 +320,26 @@ Array
 	 *
 	 * @param str $uri - If left out, redirects to previous uri.
 	 */
-	public function redirect($uri = FALSE)
-	{
+	// public function redirect($uri = FALSE, $code = NULL)
+	// {
 
-		if ($uri == FALSE)
-		{
-			if (isset($_SESSION['redirect']))
-			{
-				$redirect = $_SESSION['redirect'];
-				unset($_SESSION['redirect']);
-				$uri = $redirect;
-			}
-			elseif (isset($_SERVER['HTTP_REFERER']))
-				$uri = $_SERVER['HTTP_REFERER'];
-			else
-				$uri = Kohana::$base_url;
-		}
+	// 	if ($uri == FALSE)
+	// 	{
+	// 		if (isset($_SESSION['redirect']))
+	// 		{
+	// 			$redirect = $_SESSION['redirect'];
+	// 			unset($_SESSION['redirect']);
+	// 			$uri = $redirect;
+	// 		}
+	// 		elseif (isset($_SERVER['HTTP_REFERER']))
+	// 			$uri = $_SERVER['HTTP_REFERER'];
+	// 		else
+	// 			$uri = Kohana::$base_url;
+	// 	}
 
-		if (URL::base().$this->request->uri() != $uri)
-			$this->request->redirect($uri);
-	}
+	// 	if (URL::base().$this->request->uri() != $uri)
+	// 		Kohana_Controller::redirect($uri);
+	// }
 
 	/**
 	 * Set form data - the data that should fill out forms
