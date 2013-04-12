@@ -92,7 +92,7 @@ abstract class Xsltcontroller extends Controller
 		$this->xml_meta = $this->xml->appendChild($this->dom->createElement('meta'));
 
 		// Format URL params
-		$url_params = $_GET;
+		$url_params = array_merge($_GET, $this->request->param());
 		foreach ($url_params as $key => $url_param)
 		{
 			if (is_array($url_param))
