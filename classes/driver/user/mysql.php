@@ -204,7 +204,7 @@ class Driver_User_Mysql extends Driver_User
 
 		if (is_string($q) || ! empty($field_search)) $sql .= ' AND (';
 
-		if (is_string($q)) $sql .= 'username LIKE '.$this->pdo->quote('%'.$q.'%').' OR users_data.data LIKE '.$this->pdo->quote('%'.$q.'%').' OR';
+		if (is_string($q)) $sql .= 'username LIKE '.$this->pdo->quote('%'.$q.'%').' OR users_data.data LIKE '.$this->pdo->quote('%'.$q.'%').' OR ';
 
 		if ( ! empty($field_search))
 		{
@@ -213,10 +213,10 @@ class Driver_User_Mysql extends Driver_User
 				if (is_array($search_string))
 				{
 					foreach ($search_string as $this_search_string)
-						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).') OR';
+						$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($this_search_string).') OR ';
 				}
 				else
-					$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($search_string).') OR';
+					$sql .= 'users.id IN (SELECT user_id FROM user_users_data WHERE field_id = (SELECT id FROM user_data_fields WHERE name = '.$this->pdo->quote($field).') AND data = '.$this->pdo->quote($search_string).') OR ';
 			}
 		}
 
