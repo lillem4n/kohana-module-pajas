@@ -33,7 +33,7 @@ class Controller_Admin_Login extends Admincontroller {
 
 			$user = new User(FALSE, $post_values['username'], $post_values['password']);
 
-			$old_path = $_SESSION['old_path'];
+			$old_path = isset($_SESSION['old_path']) ? $_SESSION['old_path'] : NULL;
 
 			if ( isset($old_path) && $user->logged_in() && $user->has_access_to($old_path))
 			{
